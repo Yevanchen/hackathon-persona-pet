@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:production": "tsc --noEmit && CLOUDFLARE_ENV=production vite build",
     "preview": "vite preview",
-    "deploy": "pnpm build && wrangler deploy",
+    "deploy": "pnpm build:production && CLOUDFLARE_ENV=production wrangler deploy",
     "check:routing": "node --experimental-strip-types src/personas.check.ts",
     "check": "pnpm check:routing && pnpm build"
   },

@@ -1,9 +1,23 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "hackathon-persona-pet",
+  "account_id": "2a66b3c81860bc4990156be493151f93",
   "compatibility_date": "2026-07-16",
   "assets": {
     "not_found_handling": "single-page-application"
+  },
+  "env": {
+    "production": {
+      "name": "hackathon-persona-pet-production",
+      "routes": [
+        {
+          "pattern": "hackathon-pet.mosoo.ai",
+          "custom_domain": true
+        }
+      ],
+      "assets": {
+        "not_found_handling": "single-page-application"
+      }
+    }
   }
 }
-
