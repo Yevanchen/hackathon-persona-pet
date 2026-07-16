@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from "react";
+import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
 import {
   personas,
   pickPersonaId,
@@ -71,6 +72,18 @@ const questions = [
 ] as const;
 
 type Phase = "intro" | "quiz" | "hatching" | "result";
+
+const easeOut = [0.16, 1, 0.3, 1] as const;
+
+const cascade: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+};
+
+const cascadeItem: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: easeOut } },
+};
 
 function Header({ compact = false }: { compact?: boolean }) {
   return (
@@ -166,41 +179,57 @@ function Quiz({
       </aside>
 
       <section className="question-panel">
-        <p className="kicker">{isTextStep ? "06 / 自白" : question.eyebrow}</p>
-        <h1>{isTextStep ? "凌晨三点，队伍最希望你还在做什么？" : question.title}</h1>
+        <div className="question-content" key={step}>
+          <p className="kicker">{isTextStep ? "06 / 自白" : question.eyebrow}</p>
+          <h1>{isTextStep ? "凌晨三点，队伍最希望你还在做什么？" : question.title}</h1>
 
-        {isTextStep ? (
-          <div className="text-answer">
-            <label htmlFor="night-answer">选填，不需要认真得像周报。</label>
-            <textarea
-              id="night-answer"
-              value={freeText}
-              maxLength={80}
-              rows={4}
-              placeholder="例如：还在和最后一个 500 错误谈判……"
-              onChange={(event) => onText(event.target.value)}
-            />
-            <span>{freeText.length}/80</span>
-          </div>
-        ) : (
-          <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
-            <legend className="sr-only">选择最像你的做法</legend>
-            {question.choices.map((choice, index) => (
-              <label className="choice" key={choice}>
-                <input
-                  type="radio"
-                  name={`question-${step}`}
-                  value={choice}
-                  checked={answers[step] === choice}
-                  onChange={() => onChoose(choice)}
-                />
-                <span className="choice-index">{String.fromCharCode(65 + index)}</span>
-                <span>{choice}</span>
-                <i aria-hidden="true">↗</i>
-              </label>
-            ))}
-          </fieldset>
-        )}
+          {isTextStep ? (
+            <div className="text-answer">
+              <label htmlFor="night-answer">选填，不需要认真得像周报。</label>
+              <textarea
+                id="night-answer"
+                value={freeText}
+                maxLength={80}
+                rows={4}
+                placeholder="例如：还在和最后一个 500 错误谈判……"
+                onChange={(event) => onText(event.target.value)}
+              />
+              <span>{freeText.length}/80</span>
+            </div>
+          ) : (
+            <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
+              <legend className="sr-only">选择最像你的做法</legend>
+              {question.choices.map((choice, index) => {
+                const checked = answers[step] === choice;
+                return (
+                  <label
+                    className="choice"
+                    key={choice}
+                    style={{ "--i": index } as CSSProperties}
+                  >
+                    <input
+                      type="radio"
+                      name={`question-${step}`}
+                      value={choice}
+                      checked={checked}
+                      onChange={() => onChoose(choice)}
+                    />
+                    <m.span
+                      className="choice-index"
+                      initial={false}
+                      animate={checked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.18, times: [0, 0.4, 1], ease: easeOut }}
+                    >
+                      {String.fromCharCode(65 + index)}
+                    </m.span>
+                    <span>{choice}</span>
+                    <i aria-hidden="true">↗</i>
+                  </label>
+                );
+              })}
+            </fieldset>
+          )}
+        </div>
 
         <p className="form-error" id="choice-error" aria-live="polite">
           {error}
@@ -271,22 +300,43 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
     <main id="main-content" className="screen result-screen">
       <section className="result-visual">
         <p className="kicker">YOUR HACKATHON CLASS / MOCK DRAW</p>
-        <PetVisual persona={persona} />
+        <m.div
+          initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{
+            type: "spring",
+            duration: 0.5,
+            bounce: 0.2,
+            opacity: { duration: 0.2, ease: easeOut },
+          }}
+        >
+          <PetVisual persona={persona} />
+        </m.div>
         <div className="session-ticket">
           <span>SESSION</span>
           <code>{sessionId}</code>
         </div>
       </section>
 
-      <section className="result-copy" aria-labelledby="result-title">
-        <div className="result-number">CLASS / {String(classNumber).padStart(2, "0")}</div>
-        <h1 id="result-title">
+      <m.section
+        className="result-copy"
+        aria-labelledby="result-title"
+        variants={cascade}
+        initial="hidden"
+        animate="show"
+      >
+        <m.div className="result-number" variants={cascadeItem}>
+          CLASS / {String(classNumber).padStart(2, "0")}
+        </m.div>
+        <m.h1 id="result-title" variants={cascadeItem}>
           <span>{persona.english}</span>
           {persona.chinese}
-        </h1>
-        <p className="result-description">{persona.description}</p>
+        </m.h1>
+        <m.p className="result-description" variants={cascadeItem}>
+          {persona.description}
+        </m.p>
 
-        <div className="result-facts">
+        <m.div className="result-facts" variants={cascadeItem}>
           <div>
             <h2>你的被动技能</h2>
             <ul>
@@ -299,15 +349,15 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
             <h2>过载警告</h2>
             <p>{persona.warning}</p>
           </div>
-        </div>
+        </m.div>
 
-        <div className="result-actions">
+        <m.div className="result-actions" variants={cascadeItem}>
           <button className="primary-button" type="button" onClick={onRestart}>
             再测一次 <span aria-hidden="true">↻</span>
           </button>
           <span className="mock-note">Shitter 4% · 常规职业各 12%</span>
-        </div>
-      </section>
+        </m.div>
+      </m.section>
     </main>
   );
 }
@@ -366,25 +416,29 @@ export default function App() {
   }
 
   return (
-    <div className={`app app--${phase}`}>
-      <Header compact={phase !== "intro"} />
-      {phase === "intro" && <Intro onStart={start} />}
-      {phase === "quiz" && (
-        <Quiz
-          step={step}
-          answers={answers}
-          freeText={freeText}
-          error={error}
-          onChoose={choose}
-          onText={setFreeText}
-          onBack={back}
-          onNext={next}
-        />
-      )}
-      {phase === "hatching" && <Hatching />}
-      {phase === "result" && result && (
-        <Result persona={result.persona} sessionId={result.sessionId} onRestart={start} />
-      )}
-    </div>
+    <LazyMotion features={domAnimation} strict>
+      <MotionConfig reducedMotion="user">
+        <div className={`app app--${phase}`}>
+          <Header compact={phase !== "intro"} />
+          {phase === "intro" && <Intro onStart={start} />}
+          {phase === "quiz" && (
+            <Quiz
+              step={step}
+              answers={answers}
+              freeText={freeText}
+              error={error}
+              onChoose={choose}
+              onText={setFreeText}
+              onBack={back}
+              onNext={next}
+            />
+          )}
+          {phase === "hatching" && <Hatching />}
+          {phase === "result" && result && (
+            <Result persona={result.persona} sessionId={result.sessionId} onRestart={start} />
+          )}
+        </div>
+      </MotionConfig>
+    </LazyMotion>
   );
 }

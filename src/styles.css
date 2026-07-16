@@ -374,6 +374,28 @@ textarea:focus-visible {
   max-width: 55rem;
 }
 
+/* Stagger siblings, not the container — animating both compounds transforms.
+   backwards fill (not both) holds the hidden start during the delay without
+   persisting forwards, so .choice's own checked translateX transition survives. */
+.question-content > .kicker {
+  animation: question-in 200ms var(--ease-out) backwards;
+}
+
+.question-content > h1 {
+  animation: question-in 240ms var(--ease-out) backwards;
+  animation-delay: 30ms;
+}
+
+.question-content .text-answer {
+  animation: question-in 240ms var(--ease-out) backwards;
+  animation-delay: 60ms;
+}
+
+.question-content .choice {
+  animation: question-in 240ms var(--ease-out) backwards;
+  animation-delay: calc(60ms + var(--i) * 30ms);
+}
+
 .question-panel > h1 {
   max-width: 17em;
   margin: 0.7rem 0 clamp(2rem, 5vw, 3.5rem);
@@ -409,7 +431,13 @@ textarea:focus-visible {
   border-bottom: 0;
 }
 
-.choice:hover,
+@media (hover: hover) and (pointer: fine) {
+  .choice:hover {
+    color: var(--paper-bright);
+    background: var(--blue);
+  }
+}
+
 .choice:has(input:checked) {
   color: var(--paper-bright);
   background: var(--blue);
@@ -435,9 +463,20 @@ textarea:focus-visible {
   font-weight: 900;
 }
 
+.choice:has(input:checked) .choice-index {
+  color: var(--blue);
+  background: var(--paper-bright);
+}
+
 .choice i {
   font-style: normal;
   opacity: 0.55;
+  transition: opacity 150ms var(--ease-out), translate 150ms var(--ease-out);
+}
+
+.choice:has(input:checked) i {
+  opacity: 1;
+  translate: 2px -2px;
 }
 
 .form-error {
@@ -526,6 +565,8 @@ textarea:focus-visible {
 }
 
 .result-screen {
+  /* Motion owns this screen's entrance (pet spring + copy cascade) */
+  animation: none;
   display: grid;
   align-items: center;
   gap: clamp(2rem, 7vw, 7rem);
@@ -767,6 +808,13 @@ textarea:focus-visible {
   from {
     opacity: 0;
     transform: translateY(1rem);
+  }
+}
+
+@keyframes question-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
 }
 
