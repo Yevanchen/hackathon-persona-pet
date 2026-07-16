@@ -196,6 +196,8 @@ The role system is based on observed Hackathon team behaviors rather than techno
 
 Mosoo CLI `v0.1.2` is installed. On 2026-07-16, `mosoo doctor --json` resolved the local target at `http://127.0.0.1:8787` but reported the API as unreachable because the local service was not running. Runtime target and credentials must be resolved before integration work.
 
+The first frontend Mock is implemented in React + TypeScript + Vite using the official Cloudflare Vite plugin and Workers Static Assets. It includes the intro, six scenario questions, optional free text, hatching transition, weighted 8+1 result, responsive layout, Jiahao spritesheet preview, and CSS placeholders for the remaining Pets. The Mock explicitly labels routing as random; Mosoo is not called yet.
+
 ## Open decisions
 
 - Final six questions and answer choices.

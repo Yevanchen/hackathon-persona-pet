@@ -1,0 +1,390 @@
+import { useState, type CSSProperties } from "react";
+import {
+  personas,
+  pickPersonaId,
+  regularPersonaIds,
+  secureDraw,
+  type Persona,
+} from "./personas";
+
+const questions = [
+  {
+    eyebrow: "00 / 开局",
+    title: "比赛刚开始，你最先做什么？",
+    choices: [
+      "把目标、时间和风险画成一张路线图",
+      "先让最难的核心能力跑起来",
+      "从用户和评委的体验倒推功能",
+      "打开画布，让产品先长出一个样子",
+    ],
+  },
+  {
+    eyebrow: "01 / 认领",
+    title: "团队让你选择一个主战场。",
+    choices: [
+      "模型、后端、硬件或核心系统",
+      "前端、交互和最终视觉",
+      "模块连接、部署和交付链路",
+      "测试、日志和最诡异的 Bug",
+    ],
+  },
+  {
+    eyebrow: "02 / 分歧",
+    title: "产品想法和技术现实撞车了。",
+    choices: [
+      "砍到一个能按时交付的清晰目标",
+      "换一种组合方式，快速试三个小实验",
+      "回到用户真正需要完成的那一步",
+      "先做可点击版本，让争论变成可见体验",
+    ],
+  },
+  {
+    eyebrow: "03 / 队友",
+    title: "凌晨一点，队友卡住了。",
+    choices: [
+      "接过断点，把两个模块先缝起来",
+      "和他一起追日志，直到找到根因",
+      "重排优先级，保护整队的交付节奏",
+      "用一个离谱但可验证的新方案绕过去",
+    ],
+  },
+  {
+    eyebrow: "04 / 深夜",
+    title: "凌晨三点，Demo 突然坏了。",
+    choices: [
+      "锁定最后一个稳定版本，不再加需求",
+      "打开监控和控制台，从异常开始追",
+      "做一条足够顺畅的备用体验路径",
+      "保住核心效果，其余现场讲成故事",
+    ],
+  },
+  {
+    eyebrow: "05 / 上台",
+    title: "距离评委到桌前还有三分钟。",
+    choices: [
+      "再确认一次目标、时间和演示顺序",
+      "检查接口、网络和最后一条关键链路",
+      "把屏幕收干净，让第一眼就看懂",
+      "戴上耳机：现在这里就是主舞台",
+    ],
+  },
+] as const;
+
+type Phase = "intro" | "quiz" | "hatching" | "result";
+
+function Header({ compact = false }: { compact?: boolean }) {
+  return (
+    <header className={`topbar ${compact ? "topbar--compact" : ""}`}>
+      <div className="brand-mark" aria-label="Hackathon Familiar">
+        <span>HACK</span>
+        <b>FAMILIAR</b>
+      </div>
+      <div className="event-code">
+        TECHNOLOGY FESTIVAL
+        <span>NO LOGIN · 8+1 CLASSES</span>
+      </div>
+    </header>
+  );
+}
+
+function Intro({ onStart }: { onStart: () => void }) {
+  return (
+    <main id="main-content" className="screen intro-screen">
+      <section className="intro-copy" aria-labelledby="intro-title">
+        <p className="kicker">HACKATHON CLASSIFICATION OFFICE / 2026</p>
+        <h1 id="intro-title">
+          领取你的
+          <span>黑客松职业</span>
+        </h1>
+        <p className="intro-lead">
+          六个现场选择，一段凌晨三点的自白。无需登录，看看你的队伍会把哪只 Codex Pet 交给你。
+        </p>
+        <div className="intro-actions">
+          <button className="primary-button" type="button" onClick={onStart}>
+            开始匹配 <span aria-hidden="true">→</span>
+          </button>
+          <span className="time-note">约 60–90 秒</span>
+        </div>
+      </section>
+
+      <aside className="guild-poster" aria-label="八种常规职业和一个隐藏职业">
+        <div className="poster-stamp">8+1</div>
+        <p>GUILD ROSTER</p>
+        <ol>
+          {regularPersonaIds.map((id, index) => (
+            <li key={id} style={{ "--i": index } as CSSProperties}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <b>{personas[id].english}</b>
+              <small>{personas[id].chinese}</small>
+            </li>
+          ))}
+        </ol>
+        <div className="classified-strip">+ ONE CLASSIFIED CLASS</div>
+      </aside>
+    </main>
+  );
+}
+
+type QuizProps = {
+  step: number;
+  answers: string[];
+  freeText: string;
+  error: string;
+  onChoose: (choice: string) => void;
+  onText: (value: string) => void;
+  onBack: () => void;
+  onNext: () => void;
+};
+
+function Quiz({
+  step,
+  answers,
+  freeText,
+  error,
+  onChoose,
+  onText,
+  onBack,
+  onNext,
+}: QuizProps) {
+  const isTextStep = step === questions.length;
+  const total = questions.length + 1;
+  const progress = ((step + 1) / total) * 100;
+  const question = questions[step];
+
+  return (
+    <main id="main-content" className="screen quiz-screen">
+      <aside className="quiz-progress" aria-label={`进度 ${step + 1} / ${total}`}>
+        <span className="progress-number">{String(step + 1).padStart(2, "0")}</span>
+        <div
+          className="progress-track"
+          aria-hidden="true"
+          style={{ "--progress": progress / 100 } as CSSProperties}
+        >
+          <span />
+        </div>
+        <span className="progress-total">/{String(total).padStart(2, "0")}</span>
+      </aside>
+
+      <section className="question-panel">
+        <p className="kicker">{isTextStep ? "06 / 自白" : question.eyebrow}</p>
+        <h1>{isTextStep ? "凌晨三点，队伍最希望你还在做什么？" : question.title}</h1>
+
+        {isTextStep ? (
+          <div className="text-answer">
+            <label htmlFor="night-answer">选填，不需要认真得像周报。</label>
+            <textarea
+              id="night-answer"
+              value={freeText}
+              maxLength={80}
+              rows={4}
+              placeholder="例如：还在和最后一个 500 错误谈判……"
+              onChange={(event) => onText(event.target.value)}
+            />
+            <span>{freeText.length}/80</span>
+          </div>
+        ) : (
+          <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
+            <legend className="sr-only">选择最像你的做法</legend>
+            {question.choices.map((choice, index) => (
+              <label className="choice" key={choice}>
+                <input
+                  type="radio"
+                  name={`question-${step}`}
+                  value={choice}
+                  checked={answers[step] === choice}
+                  onChange={() => onChoose(choice)}
+                />
+                <span className="choice-index">{String.fromCharCode(65 + index)}</span>
+                <span>{choice}</span>
+                <i aria-hidden="true">↗</i>
+              </label>
+            ))}
+          </fieldset>
+        )}
+
+        <p className="form-error" id="choice-error" aria-live="polite">
+          {error}
+        </p>
+
+        <div className="quiz-actions">
+          <button className="text-button" type="button" onClick={onBack}>
+            ← 返回
+          </button>
+          <button className="primary-button" type="button" onClick={onNext}>
+            {isTextStep ? "孵化我的职业" : "下一题"} <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function Hatching() {
+  return (
+    <main id="main-content" className="screen hatching-screen" aria-live="polite">
+      <div className="hatch-seal" aria-hidden="true">
+        <span>?</span>
+      </div>
+      <p className="kicker">MATCHING YOUR GUILD SIGNAL</p>
+      <h1>正在翻找你的职业档案…</h1>
+      <p>当前为 Mock 随机抽取，正式版将由 Mosoo 判断输入。</p>
+    </main>
+  );
+}
+
+function PetVisual({ persona }: { persona: Persona }) {
+  if (persona.id === "jiahao") {
+    return (
+      <div className="pet-stage pet-stage--jiahao">
+        <div className="jiahao-sprite" role="img" aria-label="嘉豪 Codex Pet 动画预览" />
+        <span>候选资产预览</span>
+      </div>
+    );
+  }
+
+  const style = { "--pet-color": persona.color } as CSSProperties;
+  return (
+    <div className="pet-stage" style={style}>
+      <div className="placeholder-pet" role="img" aria-label={`${persona.chinese}宠物风格占位符`}>
+        <i className="pet-ear pet-ear--left" />
+        <i className="pet-ear pet-ear--right" />
+        <div className="pet-head">
+          <i className="pet-eye pet-eye--left" />
+          <i className="pet-eye pet-eye--right" />
+        </div>
+        <div className="pet-body">
+          <b>{persona.sigil}</b>
+        </div>
+      </div>
+      <span>正式 Pet 制作中</span>
+    </div>
+  );
+}
+
+function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId: string; onRestart: () => void }) {
+  const classNumber =
+    persona.id === "shitter"
+      ? 9
+      : regularPersonaIds.indexOf(persona.id as (typeof regularPersonaIds)[number]) + 1;
+
+  return (
+    <main id="main-content" className="screen result-screen">
+      <section className="result-visual">
+        <p className="kicker">YOUR HACKATHON CLASS / MOCK DRAW</p>
+        <PetVisual persona={persona} />
+        <div className="session-ticket">
+          <span>SESSION</span>
+          <code>{sessionId}</code>
+        </div>
+      </section>
+
+      <section className="result-copy" aria-labelledby="result-title">
+        <div className="result-number">CLASS / {String(classNumber).padStart(2, "0")}</div>
+        <h1 id="result-title">
+          <span>{persona.english}</span>
+          {persona.chinese}
+        </h1>
+        <p className="result-description">{persona.description}</p>
+
+        <div className="result-facts">
+          <div>
+            <h2>你的被动技能</h2>
+            <ul>
+              {persona.strengths.map((strength) => (
+                <li key={strength}>{strength}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h2>过载警告</h2>
+            <p>{persona.warning}</p>
+          </div>
+        </div>
+
+        <div className="result-actions">
+          <button className="primary-button" type="button" onClick={onRestart}>
+            再测一次 <span aria-hidden="true">↻</span>
+          </button>
+          <span className="mock-note">Shitter 4% · 常规职业各 12%</span>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+export default function App() {
+  const [phase, setPhase] = useState<Phase>("intro");
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [freeText, setFreeText] = useState("");
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<{ persona: Persona; sessionId: string } | null>(null);
+
+  function start() {
+    setPhase("quiz");
+    setStep(0);
+    setAnswers([]);
+    setFreeText("");
+    setError("");
+    setResult(null);
+  }
+
+  function choose(choice: string) {
+    setAnswers((current) => {
+      const next = [...current];
+      next[step] = choice;
+      return next;
+    });
+    setError("");
+  }
+
+  function back() {
+    if (step === 0) {
+      setPhase("intro");
+      return;
+    }
+    setStep((current) => current - 1);
+    setError("");
+  }
+
+  function next() {
+    if (step < questions.length && !answers[step]) {
+      setError("先选一个最像你的做法，再继续。");
+      return;
+    }
+    if (step < questions.length) {
+      setStep((current) => current + 1);
+      setError("");
+      return;
+    }
+
+    const persona = personas[pickPersonaId(secureDraw())];
+    const sessionId = crypto.randomUUID();
+    setResult({ persona, sessionId });
+    setPhase("hatching");
+    window.setTimeout(() => setPhase("result"), 1100);
+  }
+
+  return (
+    <div className={`app app--${phase}`}>
+      <Header compact={phase !== "intro"} />
+      {phase === "intro" && <Intro onStart={start} />}
+      {phase === "quiz" && (
+        <Quiz
+          step={step}
+          answers={answers}
+          freeText={freeText}
+          error={error}
+          onChoose={choose}
+          onText={setFreeText}
+          onBack={back}
+          onNext={next}
+        />
+      )}
+      {phase === "hatching" && <Hatching />}
+      {phase === "result" && result && (
+        <Result persona={result.persona} sessionId={result.sessionId} onRestart={start} />
+      )}
+    </div>
+  );
+}
