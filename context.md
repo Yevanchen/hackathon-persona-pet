@@ -198,6 +198,8 @@ Mosoo CLI `v0.1.2` is installed. On 2026-07-16, `mosoo doctor --json` resolved t
 
 The first frontend Mock is implemented in React + TypeScript + Vite using the official Cloudflare Vite plugin and Workers Static Assets. It includes the intro, six scenario questions, optional free text, hatching transition, weighted 8+1 result, responsive layout, Jiahao spritesheet preview, and CSS placeholders for the remaining Pets. The Mock explicitly labels routing as random; Mosoo is not called yet.
 
+Production is deployed to the `WH-2099` Cloudflare account as Worker `hackathon-persona-pet-production`, with the custom domain `https://hackathon-pet.mosoo.ai`. Initial production version: `e0b7e062-1a1e-48b9-a343-0bdb81aea523`.
+
 ## Open decisions
 
 - Final six questions and answer choices.

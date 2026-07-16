@@ -11,10 +11,10 @@ pnpm dev
 
 ```bash
 pnpm check
-pnpm deploy
+pnpm run deploy
 ```
 
-`pnpm check` runs the routing boundary check, TypeScript, and the Cloudflare Vite production build. `pnpm deploy` publishes the built SPA as Cloudflare Workers Static Assets.
+`pnpm check` runs the routing boundary check, TypeScript, and the Cloudflare Vite production build. `pnpm run deploy` publishes the built SPA as Cloudflare Workers Static Assets.
 
 Production targets the `WH-2099` Cloudflare account at `https://hackathon-pet.mosoo.ai`.
 
