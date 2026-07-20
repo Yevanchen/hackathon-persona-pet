@@ -1,5 +1,12 @@
 import { useRef, useState, type CSSProperties } from "react";
-import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
+import {
+  AnimatePresence,
+  LazyMotion,
+  MotionConfig,
+  domAnimation,
+  m,
+  type Variants,
+} from "motion/react";
 import { personaIds, personas, type Persona } from "./personas.ts";
 import { PetVisual } from "./PetVisual.tsx";
 import { questionnaire as questions, scoreQuestionnaire } from "./questionnaire.ts";
@@ -46,6 +53,22 @@ const cascade: Variants = {
 const cascadeItem: Variants = {
   hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: easeOut } },
+};
+
+const questionTransition: Variants = {
+  enter: { opacity: 0, y: 12, scale: 0.985 },
+  center: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.24, ease: easeOut },
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    scale: 0.992,
+    transition: { duration: 0.14, ease: [0.7, 0, 0.84, 0] },
+  },
 };
 
 function Header({ compact = false }: { compact?: boolean }) {
@@ -164,44 +187,49 @@ function Quiz({
         <Familiar name={quizCast[step % quizCast.length]} className="familiar--rail" />
       </aside>
 
-      <section className="question-panel">
-        <div className="question-content" key={step}>
-          <p className="kicker">{question.eyebrow}</p>
-          <h1>{question.title}</h1>
+      <section className="question-panel" aria-live="polite">
+        <AnimatePresence mode="wait" initial={false}>
+          <m.div
+            className="question-content"
+            key={question.id}
+            variants={questionTransition}
+            initial="enter"
+            animate="center"
+            exit="exit"
+          >
+            <p className="kicker">{question.eyebrow}</p>
+            <h1>{question.title}</h1>
 
-          <fieldset className="choices" disabled={Boolean(answers[step])}>
-            <legend className="sr-only">选择最像你的做法</legend>
-            <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
-            {question.choices.map((choice, index) => {
-              const checked = answers[step] === choice.id;
-              return (
-                <label
-                  className="choice"
-                  key={choice.id}
-                  style={{ "--i": index } as CSSProperties}
-                >
-                  <input
-                    type="radio"
-                    name={question.id}
-                    value={choice.id}
-                    checked={checked}
-                    onChange={() => onChoose(choice.id)}
-                  />
-                  <m.span
-                    className="choice-index"
-                    initial={false}
-                    animate={checked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
-                    transition={{ duration: 0.18, times: [0, 0.4, 1], ease: easeOut }}
-                  >
-                    {String.fromCharCode(65 + index)}
-                  </m.span>
-                  <span>{choice.label}</span>
-                  <i aria-hidden="true">↗</i>
-                </label>
-              );
-            })}
-          </fieldset>
-        </div>
+            <fieldset className="choices" disabled={Boolean(answers[step])}>
+              <legend className="sr-only">选择最像你的做法</legend>
+              <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
+              {question.choices.map((choice, index) => {
+                const checked = answers[step] === choice.id;
+                return (
+                  <label className="choice" key={choice.id}>
+                    <input
+                      type="radio"
+                      name={question.id}
+                      value={choice.id}
+                      checked={checked}
+                      onChange={() => onChoose(choice.id)}
+                    />
+                    <m.span
+                      className="choice-index"
+                      initial={false}
+                      animate={checked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.18, times: [0, 0.4, 1], ease: easeOut }}
+                    >
+                      {String.fromCharCode(65 + index)}
+                    </m.span>
+                    <span>{choice.label}</span>
+                    <i aria-hidden="true">↗</i>
+                  </label>
+                );
+              })}
+            </fieldset>
+          </m.div>
+        </AnimatePresence>
 
         <div className="quiz-actions">
           <button className="text-button" type="button" onClick={onBack}>
@@ -379,7 +407,7 @@ export default function App() {
       setResult({ persona, sessionId: crypto.randomUUID() });
       setPhase("hatching");
       window.setTimeout(() => setPhase("result"), 1100);
-    }, 320);
+    }, 280);
   }
 
   function back() {
