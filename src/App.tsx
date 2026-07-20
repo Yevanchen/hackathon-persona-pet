@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
-import { personaIds, personas, personaStatDefinitions, type Persona } from "./personas";
+import { personaIds, personas, type Persona } from "./personas";
 import {
   FREE_TEXT_PROMPT,
   START_QUESTION_ID,
@@ -363,15 +363,15 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
             <span>STATIC BUILD / 100</span>
           </div>
           <ul>
-            {personaStatDefinitions.map(({ id, label }) => (
-              <li key={id}>
+            {persona.stats.map(({ label, value }) => (
+              <li key={label}>
                 <span>{label}</span>
-                <strong>{persona.stats[id]}</strong>
+                <strong>{value}</strong>
                 <meter
                   min="0"
                   max="100"
-                  value={persona.stats[id]}
-                  aria-label={`${label} ${persona.stats[id]} 分`}
+                  value={value}
+                  aria-label={`${label} ${value} 分`}
                   style={{ "--meter-color": persona.color } as CSSProperties}
                 />
               </li>
