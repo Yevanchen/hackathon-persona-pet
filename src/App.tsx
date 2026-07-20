@@ -1,75 +1,21 @@
 import { useState, type CSSProperties } from "react";
 import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
+import { personaIds, personas, type Persona } from "./personas";
 import {
-  personas,
-  pickPersonaId,
-  regularPersonaIds,
-  secureDraw,
-  type Persona,
-} from "./personas";
-
-const questions = [
-  {
-    eyebrow: "00 / 开局",
-    title: "比赛刚开始，你最先做什么？",
-    choices: [
-      "把目标、时间和风险画成一张路线图",
-      "先让最难的核心能力跑起来",
-      "从用户和评委的体验倒推功能",
-      "打开画布，让产品先长出一个样子",
-    ],
-  },
-  {
-    eyebrow: "01 / 认领",
-    title: "团队让你选择一个主战场。",
-    choices: [
-      "模型、后端、硬件或核心系统",
-      "前端、交互和最终视觉",
-      "模块连接、部署和交付链路",
-      "测试、日志和最诡异的 Bug",
-    ],
-  },
-  {
-    eyebrow: "02 / 分歧",
-    title: "产品想法和技术现实撞车了。",
-    choices: [
-      "砍到一个能按时交付的清晰目标",
-      "换一种组合方式，快速试三个小实验",
-      "回到用户真正需要完成的那一步",
-      "先做可点击版本，让争论变成可见体验",
-    ],
-  },
-  {
-    eyebrow: "03 / 队友",
-    title: "凌晨一点，队友卡住了。",
-    choices: [
-      "接过断点，把两个模块先缝起来",
-      "和他一起追日志，直到找到根因",
-      "重排优先级，保护整队的交付节奏",
-      "用一个离谱但可验证的新方案绕过去",
-    ],
-  },
-  {
-    eyebrow: "04 / 深夜",
-    title: "凌晨三点，Demo 突然坏了。",
-    choices: [
-      "锁定最后一个稳定版本，不再加需求",
-      "打开监控和控制台，从异常开始追",
-      "做一条足够顺畅的备用体验路径",
-      "保住核心效果，其余现场讲成故事",
-    ],
-  },
-  {
-    eyebrow: "05 / 上台",
-    title: "距离评委到桌前还有三分钟。",
-    choices: [
-      "再确认一次目标、时间和演示顺序",
-      "检查接口、网络和最后一条关键链路",
-      "把屏幕收干净，让第一眼就看懂",
-      "戴上耳机：现在这里就是主舞台",
-    ],
-  },
-] as const;
+  FREE_TEXT_PROMPT,
+  START_QUESTION_ID,
+  TOTAL_QUIZ_STEPS,
+  buildQuizContext,
+  classifyQuizAnswers,
+  createPersonaScores,
+  getNextQuestionId,
+  questionBank,
+  type QuizAnswer,
+  type QuizContext,
+  type QuizQuestion,
+  type QuizQuestionId,
+  type PersonaScores,
+} from "./quiz";
 
 const introRoster = [
   { name: "牢大", tagline: "熬夜当主程" },
@@ -82,10 +28,35 @@ const introRoster = [
   { name: "嘉豪", tagline: "重新定义小功能" },
 ] as const;
 
+const RESULT_COUNTS_KEY = "hackathon-persona-counts-v2";
+
+function loadPersonaCounts(): PersonaScores {
+  const counts = createPersonaScores();
+  try {
+    const stored = localStorage.getItem(RESULT_COUNTS_KEY);
+    const parsed: unknown = stored ? JSON.parse(stored) : null;
+    if (!parsed || typeof parsed !== "object") return counts;
+
+    for (const id of personaIds) {
+      const value = (parsed as Record<string, unknown>)[id];
+      if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) counts[id] = value;
+    }
+  } catch {
+    return counts;
+  }
+  return counts;
+}
+
+function savePersonaCounts(counts: PersonaScores) {
+  try {
+    localStorage.setItem(RESULT_COUNTS_KEY, JSON.stringify(counts));
+  } catch {
+    // The quiz still works when storage is unavailable; only the local balancing history resets.
+  }
+}
+
 type Phase = "intro" | "quiz" | "hatching" | "result";
 
-// Hand-drawn geometric guild familiars (original sparkles.dev-style SVG art in
-// /public/familiars). Decorative stickers: static, aria-hidden, never interactive.
 type FamiliarName = "squish" | "rondo" | "wedge" | "brick" | "archie" | "elbow" | "zap";
 
 function Familiar({ name, className }: { name: FamiliarName; className: string }) {
@@ -100,7 +71,6 @@ function Familiar({ name, className }: { name: FamiliarName; className: string }
   );
 }
 
-// One watcher per quiz step (6 questions + the free-text confession).
 const quizCast: FamiliarName[] = ["squish", "wedge", "elbow", "rondo", "zap", "brick", "archie"];
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
@@ -124,7 +94,7 @@ function Header({ compact = false }: { compact?: boolean }) {
       </div>
       <div className="event-code">
         TECHNOLOGY FESTIVAL
-        <span>NO LOGIN · 8+1 CLASSES</span>
+        <span>NO LOGIN · 8 CLASSES</span>
       </div>
     </header>
   );
@@ -163,7 +133,7 @@ function Intro({ onStart }: { onStart: () => void }) {
               黑客松职业
             </h1>
             <p className="intro-lead">
-              六个现场选择，一段凌晨三点的自白。无需登录，看看会把哪只 Codex Pet 交给你。
+              最多八问；你的现场选择会改变后续题目。无需登录，看看会把哪只 Codex Pet 交给你。
             </p>
 
             <div className="intro-actions">
@@ -176,7 +146,7 @@ function Intro({ onStart }: { onStart: () => void }) {
 
           <div className="ticket-perf" aria-hidden="true" />
 
-          <div className="ticket-stub" aria-label="八种黑客松角色和一个隐藏职业">
+          <div className="ticket-stub" aria-label="八种黑客松人格">
             <p className="ticket-stub-title">本处签发以下职业 · GUILD ROSTER</p>
             <ol className="ticket-roster">
               {introRoster.map(({ name, tagline }, index) => (
@@ -186,11 +156,6 @@ function Intro({ onStart }: { onStart: () => void }) {
                   <small>{tagline}</small>
                 </li>
               ))}
-              <li className="classified" style={{ "--i": 8 } as CSSProperties}>
-                <span className="num">+1</span>
-                <b>CLASSIFIED</b>
-                <small>档案封存</small>
-              </li>
             </ol>
           </div>
         </section>
@@ -205,19 +170,23 @@ function Intro({ onStart }: { onStart: () => void }) {
 }
 
 type QuizProps = {
-  step: number;
-  answers: string[];
+  isTextStep: boolean;
+  question: QuizQuestion;
+  selectedChoiceId: string;
+  visibleStep: number;
   freeText: string;
   error: string;
-  onChoose: (choice: string) => void;
+  onChoose: (choiceId: string) => void;
   onText: (value: string) => void;
   onBack: () => void;
   onNext: () => void;
 };
 
 function Quiz({
-  step,
-  answers,
+  isTextStep,
+  question,
+  selectedChoiceId,
+  visibleStep,
   freeText,
   error,
   onChoose,
@@ -225,15 +194,13 @@ function Quiz({
   onBack,
   onNext,
 }: QuizProps) {
-  const isTextStep = step === questions.length;
-  const total = questions.length + 1;
-  const progress = ((step + 1) / total) * 100;
-  const question = questions[step];
+  const progress = (visibleStep / TOTAL_QUIZ_STEPS) * 100;
+  const watcher = quizCast[(visibleStep - 1) % quizCast.length];
 
   return (
     <main id="main-content" className="screen quiz-screen">
-      <aside className="quiz-progress" aria-label={`进度 ${step + 1} / ${total}`}>
-        <span className="progress-number">{String(step + 1).padStart(2, "0")}</span>
+      <aside className="quiz-progress" aria-label={`进度 ${visibleStep} / ${TOTAL_QUIZ_STEPS}`}>
+        <span className="progress-number">{String(visibleStep).padStart(2, "0")}</span>
         <div
           className="progress-track"
           aria-hidden="true"
@@ -241,18 +208,18 @@ function Quiz({
         >
           <span />
         </div>
-        <span className="progress-total">/{String(total).padStart(2, "0")}</span>
-        <Familiar name={quizCast[step % quizCast.length]} className="familiar--rail" />
+        <span className="progress-total">/{String(TOTAL_QUIZ_STEPS).padStart(2, "0")}</span>
+        <Familiar name={watcher} className="familiar--rail" />
       </aside>
 
       <section className="question-panel">
-        <div className="question-content" key={step}>
-          <p className="kicker">{isTextStep ? "06 / 自白" : question.eyebrow}</p>
-          <h1>{isTextStep ? "凌晨三点，队伍最希望你还在做什么？" : question.title}</h1>
+        <div className="question-content" key={isTextStep ? "free-text" : question.id}>
+          <p className="kicker">{isTextStep ? "自白 / 补充信号" : question.eyebrow}</p>
+          <h1>{isTextStep ? FREE_TEXT_PROMPT : question.title}</h1>
 
           {isTextStep ? (
             <div className="text-answer">
-              <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
+              <Familiar name={watcher} className="familiar--quiz" />
               <label htmlFor="night-answer">选填，不需要认真得像周报。</label>
               <textarea
                 id="night-answer"
@@ -267,21 +234,21 @@ function Quiz({
           ) : (
             <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
               <legend className="sr-only">选择最像你的做法</legend>
-              <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
+              <Familiar name={watcher} className="familiar--quiz" />
               {question.choices.map((choice, index) => {
-                const checked = answers[step] === choice;
+                const checked = selectedChoiceId === choice.id;
                 return (
                   <label
                     className="choice"
-                    key={choice}
+                    key={choice.id}
                     style={{ "--i": index } as CSSProperties}
                   >
                     <input
                       type="radio"
-                      name={`question-${step}`}
-                      value={choice}
+                      name={`question-${question.id}`}
+                      value={choice.id}
                       checked={checked}
-                      onChange={() => onChoose(choice)}
+                      onChange={() => onChoose(choice.id)}
                     />
                     <m.span
                       className="choice-index"
@@ -291,7 +258,7 @@ function Quiz({
                     >
                       {String.fromCharCode(65 + index)}
                     </m.span>
-                    <span>{choice}</span>
+                    <span>{choice.label}</span>
                     <i aria-hidden="true">↗</i>
                   </label>
                 );
@@ -317,7 +284,7 @@ function Quiz({
   );
 }
 
-function Hatching() {
+function Hatching({ responseCount }: { responseCount: number }) {
   return (
     <main id="main-content" className="screen hatching-screen" aria-live="polite">
       <Familiar name="wedge" className="familiar--hatch-left" />
@@ -327,50 +294,32 @@ function Hatching() {
       </div>
       <p className="kicker">MATCHING YOUR GUILD SIGNAL</p>
       <h1>正在翻找你的职业档案…</h1>
-      <p>当前为 Mock 随机抽取，正式版将由 Mosoo 判断输入。</p>
+      <p>已整理 {responseCount} 段现场信号；当前为本地匹配，正式版将一次提交给模型。</p>
     </main>
   );
 }
 
 function PetVisual({ persona }: { persona: Persona }) {
-  if (persona.id === "jiahao") {
-    return (
-      <div className="pet-stage pet-stage--jiahao">
-        <div className="jiahao-sprite" role="img" aria-label="嘉豪 Codex Pet 动画预览" />
-        <span>候选资产预览</span>
-      </div>
-    );
-  }
-
   const style = { "--pet-color": persona.color } as CSSProperties;
   return (
     <div className="pet-stage" style={style}>
-      <div className="placeholder-pet" role="img" aria-label={`${persona.chinese}宠物风格占位符`}>
-        <i className="pet-ear pet-ear--left" />
-        <i className="pet-ear pet-ear--right" />
-        <div className="pet-head">
-          <i className="pet-eye pet-eye--left" />
-          <i className="pet-eye pet-eye--right" />
-        </div>
-        <div className="pet-body">
-          <b>{persona.sigil}</b>
-        </div>
-      </div>
-      <span>正式 Pet 制作中</span>
+      <img
+        className="result-character"
+        src={persona.artwork}
+        alt={`${persona.chinese}像素角色`}
+        draggable={false}
+      />
     </div>
   );
 }
 
 function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId: string; onRestart: () => void }) {
-  const classNumber =
-    persona.id === "shitter"
-      ? 9
-      : regularPersonaIds.indexOf(persona.id as (typeof regularPersonaIds)[number]) + 1;
+  const classNumber = personaIds.indexOf(persona.id) + 1;
 
   return (
     <main id="main-content" className="screen result-screen">
       <section className="result-visual">
-        <p className="kicker">YOUR HACKATHON CLASS / MOCK DRAW</p>
+        <p className="kicker">YOUR HACKATHON CLASS / ADAPTIVE MOCK</p>
         <m.div
           initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -427,7 +376,7 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
           <button className="primary-button" type="button" onClick={onRestart}>
             再测一次 <span aria-hidden="true">↻</span>
           </button>
-          <span className="mock-note">Shitter 4% · 常规职业各 12%</span>
+          <span className="mock-note">八类等权 · 按答题信号匹配</span>
         </m.div>
       </m.section>
     </main>
@@ -436,53 +385,80 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>("intro");
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const [questionId, setQuestionId] = useState<QuizQuestionId>(START_QUESTION_ID);
+  const [history, setHistory] = useState<QuizAnswer[]>([]);
+  const [selectedChoiceId, setSelectedChoiceId] = useState("");
+  const [isTextStep, setIsTextStep] = useState(false);
   const [freeText, setFreeText] = useState("");
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ persona: Persona; sessionId: string } | null>(null);
+  const [resultCounts, setResultCounts] = useState(loadPersonaCounts);
+  const [result, setResult] = useState<{
+    persona: Persona;
+    sessionId: string;
+    context: QuizContext;
+  } | null>(null);
 
   function start() {
     setPhase("quiz");
-    setStep(0);
-    setAnswers([]);
+    setQuestionId(START_QUESTION_ID);
+    setHistory([]);
+    setSelectedChoiceId("");
+    setIsTextStep(false);
     setFreeText("");
     setError("");
     setResult(null);
   }
 
-  function choose(choice: string) {
-    setAnswers((current) => {
-      const next = [...current];
-      next[step] = choice;
-      return next;
-    });
+  function choose(choiceId: string) {
+    setSelectedChoiceId(choiceId);
     setError("");
   }
 
   function back() {
-    if (step === 0) {
+    const previousAnswer = history.at(-1);
+    if (!previousAnswer) {
       setPhase("intro");
       return;
     }
-    setStep((current) => current - 1);
+
+    setHistory((current) => current.slice(0, -1));
+    setQuestionId(previousAnswer.questionId);
+    setSelectedChoiceId(previousAnswer.choiceId);
+    setIsTextStep(false);
     setError("");
   }
 
   function next() {
-    if (step < questions.length && !answers[step]) {
+    if (!isTextStep && !selectedChoiceId) {
       setError("先选一个最像你的做法，再继续。");
       return;
     }
-    if (step < questions.length) {
-      setStep((current) => current + 1);
+
+    if (!isTextStep) {
+      const answer = { questionId, choiceId: selectedChoiceId };
+      const nextHistory = [...history, answer];
+      const nextQuestionId = getNextQuestionId(questionId, selectedChoiceId);
+      setHistory(nextHistory);
+      setSelectedChoiceId("");
+      if (nextQuestionId === "complete") {
+        setIsTextStep(true);
+      } else {
+        setQuestionId(nextQuestionId);
+      }
       setError("");
       return;
     }
 
-    const persona = personas[pickPersonaId(secureDraw())];
+    const context = buildQuizContext(history, freeText);
+    const personaId = classifyQuizAnswers(history, resultCounts);
+    const persona = personas[personaId];
     const sessionId = crypto.randomUUID();
-    setResult({ persona, sessionId });
+    setResultCounts((current) => {
+      const updated = { ...current, [personaId]: current[personaId] + 1 };
+      savePersonaCounts(updated);
+      return updated;
+    });
+    setResult({ persona, sessionId, context });
     setPhase("hatching");
     window.setTimeout(() => setPhase("result"), 1100);
   }
@@ -495,8 +471,10 @@ export default function App() {
           {phase === "intro" && <Intro onStart={start} />}
           {phase === "quiz" && (
             <Quiz
-              step={step}
-              answers={answers}
+              isTextStep={isTextStep}
+              question={questionBank[questionId]}
+              selectedChoiceId={selectedChoiceId}
+              visibleStep={isTextStep ? TOTAL_QUIZ_STEPS : history.length + 1}
               freeText={freeText}
               error={error}
               onChoose={choose}
@@ -505,7 +483,9 @@ export default function App() {
               onNext={next}
             />
           )}
-          {phase === "hatching" && <Hatching />}
+          {phase === "hatching" && (
+            <Hatching responseCount={result?.context.responses.length ?? TOTAL_QUIZ_STEPS} />
+          )}
           {phase === "result" && result && (
             <Result persona={result.persona} sessionId={result.sessionId} onRestart={start} />
           )}

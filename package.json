@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "deploy": "pnpm build:production && CLOUDFLARE_ENV=production wrangler deploy",
     "check:routing": "node --experimental-strip-types src/personas.check.ts",
-    "check": "pnpm check:routing && pnpm build"
+    "check:quiz": "node --experimental-strip-types src/quiz.check.ts",
+    "check": "pnpm check:routing && pnpm check:quiz && pnpm build"
   },
   "dependencies": {
     "motion": "^12.42.2",

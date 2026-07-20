@@ -1,19 +1,15 @@
 import assert from "node:assert/strict";
-import { pickPersonaId, regularPersonaIds } from "./personas.ts";
+import { accessSync } from "node:fs";
+import { personaIds, personas } from "./personas.ts";
 
-assert.equal(pickPersonaId(0), "shitter");
-assert.equal(pickPersonaId(0.039999), "shitter");
+assert.equal(personaIds.length, 8);
+assert.equal(new Set(personaIds).size, 8);
+assert.deepEqual(Object.keys(personas).sort(), [...personaIds].sort());
+assert.equal(new Set(personaIds.map((id) => personas[id].artwork)).size, 8);
 
-for (const [index, id] of regularPersonaIds.entries()) {
-  const lower = 0.04 + index * 0.12;
-  const midpoint = lower + 0.06;
-  assert.equal(pickPersonaId(lower + Number.EPSILON), id);
-  assert.equal(pickPersonaId(midpoint), id);
+for (const id of personaIds) {
+  assert.equal(personas[id].id, id);
+  accessSync(new URL(`../public${personas[id].artwork}`, import.meta.url));
 }
 
-assert.equal(pickPersonaId(0.999999), "alchemist");
-assert.throws(() => pickPersonaId(-0.1), RangeError);
-assert.throws(() => pickPersonaId(1), RangeError);
-
-console.log("routing check passed: Shitter 4%, eight regular buckets 12% each");
-
+console.log("persona check passed: 8 equal-weight classes with 8 result artworks");

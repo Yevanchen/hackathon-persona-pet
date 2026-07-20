@@ -1,7 +1,7 @@
 # Hackathon Persona Pet — Product Context
 
 > Status: living design context  
-> Updated: 2026-07-16  
+> Updated: 2026-07-20
 > Audience: Hackathon booth visitors, primarily tech-interested people aged 16–26
 
 ## Product thesis
@@ -12,14 +12,14 @@ Mosoo is the classification runtime. It judges which persona best matches the in
 
 ## Current priority: prove the asset-to-Mock loop
 
-The immediate milestone is not the production classifier. It is a complete visual prototype using nine coherent Pet concepts:
+The immediate milestone is not the production classifier. It is a complete visual prototype using eight coherent Pet concepts:
 
-1. **Reference discovery:** coarse-filter Petdex and Awesome Codex Pet for friendly, appealing style references that fit the nine professions.
-2. **Static identity art:** remix the selected visual language into nine original or explicitly authorized base Pet images.
-3. **Pet production:** run each approved base image through the Codex Pet pipeline to produce nine installable packages.
+1. **Reference discovery:** coarse-filter Petdex and Awesome Codex Pet for friendly, appealing style references that fit the eight personas.
+2. **Static identity art:** remix the selected visual language into eight original or explicitly authorized base Pet images.
+3. **Pet production:** run each approved base image through the Codex Pet pipeline to produce eight installable packages.
 4. **Frontend Mock:** present the questionnaire and optional free text, then assign a Pet without Mosoo so the end-to-end interaction can be tested first.
 
-For the Mock, reuse the already-approved distribution as a weighted random router: `Shitter` 4%; each regular Pet 12%. This is temporary. Production replaces random regular routing with Mosoo input matching while retaining the 4% Shitter override.
+For the Mock, match all eight personas from answer signals with equal base weight. Close scores prefer the least-seen result in the local device histogram; production replaces that local histogram with persisted aggregate counts.
 
 ### Reference filtering rules
 
@@ -30,7 +30,7 @@ Keep references that are:
 - compact, whole-body, and readable at 192×208;
 - cute, friendly, rounded, and approachable;
 - visually coherent with a shared chibi or mascot family;
-- simple enough to animate consistently across nine states;
+- simple enough to animate consistently across eight states;
 - distinct through color, silhouette, costume, or one stable prop;
 - suitable for a technology-interested, anime-friendly 16–26 audience.
 
@@ -57,16 +57,14 @@ Popularity is not a safety or originality gate. A famous third-party character m
 4. treat recognizable-IP popularity as evidence about shape, color, and emotional appeal only;
 5. remix into a new identity instead of preserving recognizable character features.
 
-The shortlist does not need equal popularity per persona. A small set of highly popular, cohesive style anchors should govern all nine Pets; lower-popularity references may contribute only a profession cue, prop, or silhouette.
+The shortlist does not need equal popularity per persona. A small set of highly popular, cohesive style anchors should govern all eight Pets; lower-popularity references may contribute only a profession cue, prop, or silhouette.
 
 ## Locked decisions
 
 - No registration or login.
-- Nine personas: eight input-driven roles plus one 4% random easter egg.
-- English persona names are one word. Chinese names remain descriptive RPG-style professions.
-- The eight regular roles are classified primarily from user input.
-- `Shitter / 捣乱者` is independent of input and has a fixed 4% chance per new session.
-- The other eight roles each have a target weight of about 12% of all results, but this is a balancing prior, not a hard quota.
+- Exactly eight input-driven meme personas; there is no ninth class or random override.
+- All eight personas have an equal 12.5% distribution target, used only as a soft balancing prior.
+- A clear answer match always wins; recent result counts may decide only among close candidates.
 - Pets are made in-house or created from explicitly authorized Remix sources. Petdex and Awesome Codex Pet are references, not the production asset pool.
 - MVP pet packages use the Codex v1 package profile: `pet.json` plus `spritesheet.webp`, 8×9 atlas, 192×208 per cell, 1536×1872 total.
 - Each persona has one prebuilt Pet ZIP. ZIPs are not generated per user.
@@ -76,39 +74,34 @@ The shortlist does not need equal popularity per persona. A small set of highly 
 
 | ID | English | 中文 | Team behavior | Target share |
 |---|---|---|---|---:|
-| `tactician` | Tactician | 蓝图策士 | Narrows the goal, maps the route, and protects delivery rhythm | ~12% |
-| `artificer` | Artificer | 技栈奇械师 | Independently builds the backend, model, hardware, or core system | ~12% |
-| `cartographer` | Cartographer | 体验绘界师 | Works backward from user journeys and judging goals | ~12% |
-| `weaver` | Weaver | 像素织师 | Turns rough capability into a clear, usable, polished interface | ~12% |
-| `warden` | Warden | 热修守望者 | Connects modules, fills gaps, and protects the final submission | ~12% |
-| `ranger` | Ranger | 故障巡猎者 | Tracks anomalies, finds root causes, and clears hidden failures | ~12% |
-| `jiahao` | Jiahao | 嘉豪 | Treats every demo like a main stage: visibly expressive, immersive, and unafraid to perform | ~12% |
-| `alchemist` | Alchemist | 灵感炼金师 | Combines new APIs, AI, and hardware into fast experiments | ~12% |
-| `shitter` | Shitter | 捣乱者 | Rare chaos-class easter egg, not an evaluation of the answers | 4% |
-
-The eight regular targets total 96%. Conditional on not hitting Shitter, their neutral prior is 12.5% each.
+| `laoda` | Laoda | 牢大 | Owns the hard core task and keeps shipping under deadline pressure | 12.5% |
+| `bigdog` | Big Dog | 大狗叫 | Speaks up, reports progress, and gives the project visible energy | 12.5% |
+| `maodie` | Maodie | 耄耋 | Spots faults early, objects directly, and traces root causes | 12.5% |
+| `mowan` | Mowan | 魔丸 | Challenges constraints through small, reversible experiments | 12.5% |
+| `gugugaga` | Gugugaga | 咕咕嘎嘎 | Keeps team communication and handoffs continuously alive | 12.5% |
+| `shitter` | Shitter | 码仓铲屎官 | Uses unconventional patches to keep a chaotic live build running | 12.5% |
+| `nailong` | Nailong | 奶蛙 | Makes the experience approachable and relieves team pressure | 12.5% |
+| `jiahao` | Jiahao | 嘉豪 | Turns even a small feature into a memorable live Demo | 12.5% |
 
 ## Classification and distribution algorithm
 
 1. On first submission, the backend creates a UUID and an idempotent result attempt.
-2. The backend performs one server-side random draw for that UUID.
-3. If the draw lands in the 4% bucket, assign `shitter`, skip Mosoo, persist the result, and return it.
-4. Otherwise, send the normalized answers to the published Mosoo Agent.
-5. Mosoo scores or ranks only the eight regular persona IDs. It must not return `shitter`.
-6. A clear top match wins. When the leading candidates are close, the backend may prefer an underrepresented candidate using the current result histogram.
-7. The histogram is a soft tie-breaker only. It must not replace a strong input match or enforce exact quotas.
-8. Persist the final `personalityId`, `petId`, classification version, and timestamp against the UUID.
-9. Refreshes, QR visits, retries after success, and ZIP downloads read the persisted result and never draw again.
+2. Send the normalized answers to the published Mosoo Agent.
+3. Mosoo scores or ranks the eight allowlisted persona IDs with equal base weight.
+4. A clear top match wins. When the leading candidates are close, the backend may prefer an underrepresented candidate using the current result histogram.
+5. The histogram is a soft tie-breaker only. It must not replace a strong input match or enforce exact quotas.
+6. Persist the final `personalityId`, `petId`, classification version, and timestamp against the UUID.
+7. Refreshes, QR visits, retries after success, and ZIP downloads read the persisted result and never classify again.
 
 The exact definition of “close candidates” remains a calibration setting. Start with a small fixed threshold and tune it from test responses; do not add a quota optimizer unless observed distribution makes it necessary.
 
 ## Shitter presentation rule
 
-`Shitter` is deliberately vulgar, but the result must read as a rare, playful chaos class rather than an insult or a claim that the user is incompetent. The Chinese name remains the softer `捣乱者`. Its result copy and Pet should celebrate unpredictable energy and accidental comedy without encouraging harassment or sabotage.
+`Shitter` is deliberately vulgar, but the result must read as a playful patch-and-chaos archetype rather than an insult or a claim that the user is incompetent. The Chinese result name remains the softer `码仓铲屎官`. Its choices reward visible, reversible emergency fixes; they must not encourage harassment, sabotage, or destructive production behavior.
 
 ## Jiahao presentation rule
 
-`Jiahao / 嘉豪` replaces `Bard / 路演吟游者` as one of the eight regular personas. The current Chinese internet meme describes a campus-style, black-hooded performer who wants to be noticed, looks deliberately cool, and is sincere even when the performance feels slightly overdone. Its positive Hackathon translation is someone who turns a demo into a stage, commits fully, and resists bland sameness.
+`Jiahao / 嘉豪` is one of the eight personas. The current Chinese internet meme describes a campus-style, black-hooded performer who wants to be noticed, looks deliberately cool, and is sincere even when the performance feels slightly overdone. Its positive Hackathon translation is someone who turns a demo into a stage, commits fully, and resists bland sameness.
 
 The result must be affectionate and self-aware, not a label for incompetence or a real person's name. Avoid copy such as “装懂”, “实力不够”, “班级小丑”, or claims that all people named 嘉豪 share this trait. Do not reproduce Alan Walker branding, logos, or a real minor's face. Safe visual cues are an unbranded black oversized hoodie, generic face mask, neon waveform, and an air-DJ gesture.
 
@@ -117,12 +110,11 @@ The result must be affectionate and self-aware, not a label for incompetence or 
 Mosoo owns:
 
 - interpreting the questionnaire input;
-- scoring or ranking the eight regular personas;
+- scoring or ranking the eight personas;
 - returning a strict, allowlisted classification response.
 
 The application owns:
 
-- the 4% Shitter draw;
 - histogram-based tie-breaking;
 - UUID/session persistence and idempotency;
 - persona-to-Pet mapping;
@@ -136,11 +128,12 @@ No Mosoo token may be exposed in browser code. The web backend calls the publish
 This flow is directionally agreed but the exact copy is still open:
 
 1. Landing page promises a roughly 60–90 second, no-login experience.
-2. Six progressive Hackathon scenario cards cover starting direction, role ownership, technical/product trade-offs, helping a blocked teammate, late-night failure, and the final demo.
-3. One optional free-text prompt: “凌晨 3 点，队伍最希望你还在做什么？” Suggested limit: 80 Chinese characters.
-4. Submission enters a short Pet-hatching transition while routing runs.
-5. The result page shows the bilingual role, role statement, team strengths, overload warning, complementary teammate, animated Pet, ZIP download, stable URL, and QR code.
-6. A failed classification keeps the answers and offers retry. It never assigns a random regular persona as fallback.
+2. Everyone starts from the same self-introduction question. Each answer follows a fixed branch through a 17-question bank; internal IDs are never shown.
+3. A session shows seven multiple-choice questions, numbered continuously from 1–7 regardless of its internal path.
+4. One optional free-text prompt, numbered 8: “凌晨 3 点，队伍最希望你还在做什么？” Suggested limit: 80 Chinese characters.
+5. Submission enters a short Pet-hatching transition while routing runs.
+6. The result page shows the bilingual role, role statement, team strengths, overload warning, complementary teammate, animated Pet, ZIP download, stable URL, and QR code.
+7. A failed classification keeps the answers and offers retry. It never assigns a random persona as fallback.
 
 ## Asset contract
 
@@ -168,7 +161,7 @@ The package matches the Petdex entry [Jiahao（嘉豪）](https://petdex.dev/pet
 
 ```text
 id                  UUID, public result identifier
-personality_id      one of the nine allowlisted IDs
+personality_id      one of the eight allowlisted IDs
 pet_id              selected prebuilt Pet
 classification_ver questionnaire/prompt/routing version
 created_at          result creation timestamp
@@ -179,6 +172,27 @@ Raw free text and full Mosoo transcripts are not required to reconstruct a resul
 ## Research basis
 
 The role system is based on observed Hackathon team behaviors rather than technology stacks. Recurring signals in North American posts and guides are ownership, reliability, shipping, staying engaged under pressure, integration, and demo storytelling.
+
+### Meme search and self-positioning bridge
+
+Search with the source meme vocabulary, not the derived Hackathon tagline. The meme is a writing and research anchor; the user-facing answer must be a concrete behavior someone can comfortably say about themselves in a team-forming conversation.
+
+The canonical research corpus and synthesis rules are documented in [Context 1 × Context 2](docs/research/persona-quiz-contexts.md). Context 1 supplies meme tone and safety boundaries; Context 2 supplies real participant language and observable classification signals. The fixed question bank is authored from both, while the runtime model receives only the eight sequential answers and a versioned persona rubric.
+
+| Homepage meme | Search terms | Safe Hackathon behavior cue |
+|---|---|---|
+| 牢大 | `牢大 科比 想你了 曼巴` | Owns a hard core task and stays engaged late; do not turn the tragedy itself into a personality judgment |
+| 大狗叫 | `大狗大狗叫叫叫 叮咚鸡 狗原型` | Speaks up, reports progress, and raises team energy without equating volume with leadership |
+| 耄耋 | `圆头耄耋 猫爹 哈气 暴躁猫` | Notices faults early and states objections directly; soften hostility and age-based labeling |
+| 魔丸 | `哪吒 魔丸 混世魔王 我命由我不由天` | Challenges constraints and tries disruptive experiments; never frame deletion or sabotage as desirable |
+| 咕咕嘎嘎 | `咕咕嘎嘎企鹅 Gugu Gaga Penguin` | Keeps team communication alive; do not imply chat activity is the same as project contribution |
+| Shitter | No canonical 梗百科 source; this is product-native copy | Uses explicit, reversible emergency patches; never treat the label as an insult |
+| 奶蛙 | `奶龙大笑 罕见奶龙 八级哥笑声 AI二创` | Provides morale and comic relief while still describing a real contribution |
+| 嘉豪 | `嘉豪 黑衣 DJ 慢动作 校园表演` | Commits to the demo, reframes ordinary features, and creates a memorable stage moment without targeting real people |
+
+Research seeds: [嘉豪梗百科](https://gengbaike.heyfe.org/memes/text/jia-hao), [咕咕嘎嘎梗百科视频](https://www.bilibili.com/list/1544008396?bvid=BV1mm9mY9Eyq&oid=114120670057921), [圆头耄耋梗百科视频](https://www.bilibili.com/video/BV1xqjAzkE7B/), [魔丸梗百科视频](https://www.bilibili.com/video/BV1hweRzgEWX/), and [奶龙大笑梗百科视频](https://www.bilibili.com/list/1544008396?bvid=BV1ZPieB5EK7&oid=115829144293958). `Shitter` must stay explicitly marked as product-native rather than receiving a fabricated canonical source.
+
+The model context contains only eight continuously numbered question-and-answer pairs. Internal branch IDs and persona signal weights stay application-side. The current local scorer uses the same eight IDs as the future model response; a result histogram may change the winner only when candidates are within a two-point score threshold.
 
 - [MLH: What makes a winning Hackathon team](https://blog.mlh.com/what-makes-a-winning-hackathon-team-not-what-you-think-07-07-2015)
 - [Devpost: How to present a successful Hackathon demo](https://info.devpost.com/blog/how-to-present-a-successful-hackathon-demo)
@@ -196,15 +210,15 @@ The role system is based on observed Hackathon team behaviors rather than techno
 
 Mosoo CLI `v0.1.2` is installed. On 2026-07-16, `mosoo doctor --json` resolved the local target at `http://127.0.0.1:8787` but reported the API as unreachable because the local service was not running. Runtime target and credentials must be resolved before integration work.
 
-The first frontend Mock is implemented in React + TypeScript + Vite using the official Cloudflare Vite plugin and Workers Static Assets. It includes the intro, six scenario questions, optional free text, hatching transition, weighted 8+1 result, responsive layout, Jiahao spritesheet preview, and CSS placeholders for the remaining Pets. The Mock explicitly labels routing as random; Mosoo is not called yet.
+The frontend Mock is implemented in React + TypeScript + Vite using the official Cloudflare Vite plugin and Workers Static Assets. It includes the intro, a 17-node fixed adaptive question bank, seven answer-driven branch steps, optional free text, hatching transition, responsive layout, and eight supplied pixel-character result images. All eight personas are matched by local answer signals; close candidates use a per-device result histogram as the balancing tie-breaker. The original SVG familiars remain decorative page assets. Mosoo is not called yet.
 
 Production is deployed to the `WH-2099` Cloudflare account as Worker `hackathon-persona-pet-production`, with the custom domain `https://hackathon-pet.mosoo.ai`. Initial production version: `e0b7e062-1a1e-48b9-a343-0bdb81aea523`.
 
 ## Open decisions
 
-- Final six questions and answer choices.
+- Calibrate question copy, score weights, and the close-candidate threshold with real booth responses.
 - Detailed result copy, complementary-role pairs, and overload warnings.
-- Visual brief and animation personality for each of the nine Pets.
+- Visual brief and animation personality for each of the eight Pets.
 - Mosoo response schema and the initial “close candidate” threshold.
 - Data retention, abuse controls, result lifetime, and deletion policy.
 - Hosting, database, object storage, analytics, and event-day operations.

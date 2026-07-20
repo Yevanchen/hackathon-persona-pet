@@ -4,7 +4,7 @@ Guide for AI agents working in this repo. Product context lives in `context.md`;
 
 ## Project
 
-React 19 + Vite SPA deployed as Cloudflare Workers Static Assets. A no-login hackathon booth quiz: six scenario questions + one optional free-text answer → an 8+1 Codex Pet persona result (mock weighted draw for now; Mosoo classification later).
+React 19 + Vite SPA deployed as Cloudflare Workers Static Assets. A no-login hackathon booth quiz: seven adaptive scenario questions + one optional free-text answer → one of eight equally weighted meme-persona results (local signal scoring for now; Mosoo classification later).
 
 - `src/App.tsx` — all screens (intro → quiz → hatching → result)
 - `src/personas.ts` — persona data + draw routing (`pnpm check:routing` guards the boundary)
