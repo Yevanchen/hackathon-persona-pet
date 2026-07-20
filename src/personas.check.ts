@@ -1,19 +1,119 @@
 import assert from "node:assert/strict";
-import { pickPersonaId, regularPersonaIds } from "./personas.ts";
+import { personaIds } from "./personas.ts";
+import {
+  createEmptyPersonaTotals,
+  parseQuestionnaireDocument,
+  questionnaire,
+  questionnaireVersion,
+  scoreColumnPersonaIds,
+  scoreQuestionnaire,
+  selectHighestScoringPersona,
+  type ScoredQuestion,
+} from "./questionnaire.ts";
 
-assert.equal(pickPersonaId(0), "shitter");
-assert.equal(pickPersonaId(0.039999), "shitter");
+assert.equal(personaIds.length, 8);
+assert.match(questionnaireVersion, /^\d{4}-\d{2}-\d{2}/);
+assert.deepEqual(scoreColumnPersonaIds, personaIds);
+assert.equal(questionnaire.length, 8);
 
-for (const [index, id] of regularPersonaIds.entries()) {
-  const lower = 0.04 + index * 0.12;
-  const midpoint = lower + 0.06;
-  assert.equal(pickPersonaId(lower + Number.EPSILON), id);
-  assert.equal(pickPersonaId(midpoint), id);
+for (const question of questionnaire) {
+  assert.ok(question.choices.length >= 2, `${question.id} must have at least two choices`);
+  assert.equal(
+    new Set(question.choices.map((choice) => choice.id)).size,
+    question.choices.length,
+  );
+
+  for (const choice of question.choices) {
+    assert.equal(choice.scores.length, 8, `${question.id}/${choice.id} must score eight personas`);
+    assert.ok(choice.scores.every((score) => Number.isFinite(score) && score >= 0));
+    assert.ok(
+      choice.scores.some((score) => score > 0),
+      `${question.id}/${choice.id} must score at least one persona`,
+    );
+  }
 }
 
-assert.equal(pickPersonaId(0.999999), "alchemist");
-assert.throws(() => pickPersonaId(-0.1), RangeError);
-assert.throws(() => pickPersonaId(1), RangeError);
+const twoChoiceQuestion = {
+  ...questionnaire[0],
+  choices: [questionnaire[0].choices[0], questionnaire[0].choices[1]],
+} satisfies ScoredQuestion;
+assert.equal(twoChoiceQuestion.choices.length, 2);
 
-console.log("routing check passed: Shitter 4%, eight regular buckets 12% each");
+const firstChoices = questionnaire.map((question) => question.choices[0].id);
+const firstChoiceResult = scoreQuestionnaire(firstChoices);
 
+for (const [personaIndex, personaId] of personaIds.entries()) {
+  const expectedTotal = questionnaire.reduce(
+    (total, question) => total + question.choices[0].scores[personaIndex],
+    0,
+  );
+  assert.equal(firstChoiceResult.totals[personaId], expectedTotal);
+}
+
+assert.equal(
+  firstChoiceResult.highestScore,
+  Math.max(...Object.values(firstChoiceResult.totals)),
+);
+assert.equal(firstChoiceResult.personaId, firstChoiceResult.tiedPersonaIds[0]);
+
+const tiedTotals = createEmptyPersonaTotals();
+assert.equal(selectHighestScoringPersona(tiedTotals), personaIds[0]);
+
+for (const personaId of personaIds) {
+  const totals = createEmptyPersonaTotals();
+  totals[personaId] = 1;
+  assert.equal(selectHighestScoringPersona(totals), personaId);
+}
+
+assert.throws(() => scoreQuestionnaire(firstChoices.slice(0, 7)), RangeError);
+const answersWithUnknownChoice = [...firstChoices];
+answersWithUnknownChoice[3] = "not-a-choice";
+assert.throws(
+  () => scoreQuestionnaire(answersWithUnknownChoice),
+  /unknown choice "not-a-choice"/,
+);
+
+const documentWithOneChoice = {
+  version: questionnaireVersion,
+  scoreColumnPersonaIds,
+  questions: questionnaire.map((question, index) =>
+    index === 0 ? { ...question, choices: [question.choices[0]] } : question,
+  ),
+};
+assert.throws(
+  () => parseQuestionnaireDocument(documentWithOneChoice),
+  /choices must contain at least two choices/,
+);
+
+const documentWithWrongColumns = {
+  ...documentWithOneChoice,
+  scoreColumnPersonaIds: [...scoreColumnPersonaIds].reverse(),
+  questions: questionnaire,
+};
+assert.throws(
+  () => parseQuestionnaireDocument(documentWithWrongColumns),
+  /must match the canonical persona order/,
+);
+
+const documentWithAllZeroChoice = {
+  version: questionnaireVersion,
+  scoreColumnPersonaIds,
+  questions: questionnaire.map((question, questionIndex) =>
+    questionIndex === 0
+      ? {
+          ...question,
+          choices: question.choices.map((choice, choiceIndex) =>
+            choiceIndex === 0
+              ? { ...choice, scores: [0, 0, 0, 0, 0, 0, 0, 0] }
+              : choice,
+          ),
+        }
+      : question,
+  ),
+};
+assert.throws(
+  () => parseQuestionnaireDocument(documentWithAllZeroChoice),
+  /must give positive evidence to at least one persona/,
+);
+
+console.log("questionnaire check passed: 8 questions × n choices (n >= 2) × 8 persona scores");

@@ -1,75 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
-import {
-  personas,
-  pickPersonaId,
-  regularPersonaIds,
-  secureDraw,
-  type Persona,
-} from "./personas";
-
-const questions = [
-  {
-    eyebrow: "00 / 开局",
-    title: "比赛刚开始，你最先做什么？",
-    choices: [
-      "把目标、时间和风险画成一张路线图",
-      "先让最难的核心能力跑起来",
-      "从用户和评委的体验倒推功能",
-      "打开画布，让产品先长出一个样子",
-    ],
-  },
-  {
-    eyebrow: "01 / 认领",
-    title: "团队让你选择一个主战场。",
-    choices: [
-      "模型、后端、硬件或核心系统",
-      "前端、交互和最终视觉",
-      "模块连接、部署和交付链路",
-      "测试、日志和最诡异的 Bug",
-    ],
-  },
-  {
-    eyebrow: "02 / 分歧",
-    title: "产品想法和技术现实撞车了。",
-    choices: [
-      "砍到一个能按时交付的清晰目标",
-      "换一种组合方式，快速试三个小实验",
-      "回到用户真正需要完成的那一步",
-      "先做可点击版本，让争论变成可见体验",
-    ],
-  },
-  {
-    eyebrow: "03 / 队友",
-    title: "凌晨一点，队友卡住了。",
-    choices: [
-      "接过断点，把两个模块先缝起来",
-      "和他一起追日志，直到找到根因",
-      "重排优先级，保护整队的交付节奏",
-      "用一个离谱但可验证的新方案绕过去",
-    ],
-  },
-  {
-    eyebrow: "04 / 深夜",
-    title: "凌晨三点，Demo 突然坏了。",
-    choices: [
-      "锁定最后一个稳定版本，不再加需求",
-      "打开监控和控制台，从异常开始追",
-      "做一条足够顺畅的备用体验路径",
-      "保住核心效果，其余现场讲成故事",
-    ],
-  },
-  {
-    eyebrow: "05 / 上台",
-    title: "距离评委到桌前还有三分钟。",
-    choices: [
-      "再确认一次目标、时间和演示顺序",
-      "检查接口、网络和最后一条关键链路",
-      "把屏幕收干净，让第一眼就看懂",
-      "戴上耳机：现在这里就是主舞台",
-    ],
-  },
-] as const;
+import { personaIds, personas, type Persona } from "./personas.ts";
+import { questionnaire as questions, scoreQuestionnaire } from "./questionnaire.ts";
 
 type Phase = "intro" | "quiz" | "hatching" | "result";
 
@@ -89,7 +21,7 @@ function Familiar({ name, className }: { name: FamiliarName; className: string }
   );
 }
 
-// One watcher per quiz step (6 questions + the free-text confession).
+// Decorative watchers repeat when the eight-question sequence is longer than the cast.
 const quizCast: FamiliarName[] = ["squish", "wedge", "elbow", "rondo", "zap", "brick", "archie"];
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
@@ -113,7 +45,7 @@ function Header({ compact = false }: { compact?: boolean }) {
       </div>
       <div className="event-code">
         TECHNOLOGY FESTIVAL
-        <span>NO LOGIN · 8+1 CLASSES</span>
+        <span>NO LOGIN · 8 QUESTIONS</span>
       </div>
     </header>
   );
@@ -149,10 +81,10 @@ function Intro({ onStart }: { onStart: () => void }) {
             <h1 id="intro-title">
               领取你的
               <br />
-              黑客松职业
+              黑客松人格
             </h1>
             <p className="intro-lead">
-              六个现场选择，一段凌晨三点的自白。无需登录，看看会把哪只 Codex Pet 交给你。
+              八个现场选择，一套人格加分矩阵。无需登录，看看会把哪只 Codex Pet 交给你。
             </p>
 
             <div className="intro-actions">
@@ -161,26 +93,6 @@ function Intro({ onStart }: { onStart: () => void }) {
               </button>
               <span className="time-note">约 60–90 秒</span>
             </div>
-          </div>
-
-          <div className="ticket-perf" aria-hidden="true" />
-
-          <div className="ticket-stub" aria-label="八种常规职业和一个隐藏职业">
-            <p className="ticket-stub-title">本处签发以下职业 · GUILD ROSTER</p>
-            <ol className="ticket-roster">
-              {regularPersonaIds.map((id, index) => (
-                <li key={id} style={{ "--i": index } as CSSProperties}>
-                  <span className="num">{String(index + 1).padStart(2, "0")}</span>
-                  <b>{personas[id].english}</b>
-                  <small>{personas[id].chinese}</small>
-                </li>
-              ))}
-              <li className="classified" style={{ "--i": 8 } as CSSProperties}>
-                <span className="num">+1</span>
-                <b>CLASSIFIED</b>
-                <small>档案封存</small>
-              </li>
-            </ol>
           </div>
         </section>
       </div>
@@ -191,10 +103,8 @@ function Intro({ onStart }: { onStart: () => void }) {
 type QuizProps = {
   step: number;
   answers: string[];
-  freeText: string;
   error: string;
   onChoose: (choice: string) => void;
-  onText: (value: string) => void;
   onBack: () => void;
   onNext: () => void;
 };
@@ -202,15 +112,12 @@ type QuizProps = {
 function Quiz({
   step,
   answers,
-  freeText,
   error,
   onChoose,
-  onText,
   onBack,
   onNext,
 }: QuizProps) {
-  const isTextStep = step === questions.length;
-  const total = questions.length + 1;
+  const total = questions.length;
   const progress = ((step + 1) / total) * 100;
   const question = questions[step];
 
@@ -231,57 +138,41 @@ function Quiz({
 
       <section className="question-panel">
         <div className="question-content" key={step}>
-          <p className="kicker">{isTextStep ? "06 / 自白" : question.eyebrow}</p>
-          <h1>{isTextStep ? "凌晨三点，队伍最希望你还在做什么？" : question.title}</h1>
+          <p className="kicker">{question.eyebrow}</p>
+          <h1>{question.title}</h1>
 
-          {isTextStep ? (
-            <div className="text-answer">
-              <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
-              <label htmlFor="night-answer">选填，不需要认真得像周报。</label>
-              <textarea
-                id="night-answer"
-                value={freeText}
-                maxLength={80}
-                rows={4}
-                placeholder="例如：还在和最后一个 500 错误谈判……"
-                onChange={(event) => onText(event.target.value)}
-              />
-              <span>{freeText.length}/80</span>
-            </div>
-          ) : (
-            <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
-              <legend className="sr-only">选择最像你的做法</legend>
-              <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
-              {question.choices.map((choice, index) => {
-                const checked = answers[step] === choice;
-                return (
-                  <label
-                    className="choice"
-                    key={choice}
-                    style={{ "--i": index } as CSSProperties}
+          <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
+            <legend className="sr-only">选择最像你的做法</legend>
+            <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
+            {question.choices.map((choice, index) => {
+              const checked = answers[step] === choice.id;
+              return (
+                <label
+                  className="choice"
+                  key={choice.id}
+                  style={{ "--i": index } as CSSProperties}
+                >
+                  <input
+                    type="radio"
+                    name={question.id}
+                    value={choice.id}
+                    checked={checked}
+                    onChange={() => onChoose(choice.id)}
+                  />
+                  <m.span
+                    className="choice-index"
+                    initial={false}
+                    animate={checked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.18, times: [0, 0.4, 1], ease: easeOut }}
                   >
-                    <input
-                      type="radio"
-                      name={`question-${step}`}
-                      value={choice}
-                      checked={checked}
-                      onChange={() => onChoose(choice)}
-                    />
-                    <m.span
-                      className="choice-index"
-                      initial={false}
-                      animate={checked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
-                      transition={{ duration: 0.18, times: [0, 0.4, 1], ease: easeOut }}
-                    >
-                      {String.fromCharCode(65 + index)}
-                    </m.span>
-                    <span>{choice}</span>
-                    <i aria-hidden="true">↗</i>
-                  </label>
-                );
-              })}
-            </fieldset>
-          )}
+                    {String.fromCharCode(65 + index)}
+                  </m.span>
+                  <span>{choice.label}</span>
+                  <i aria-hidden="true">↗</i>
+                </label>
+              );
+            })}
+          </fieldset>
         </div>
 
         <p className="form-error" id="choice-error" aria-live="polite">
@@ -293,7 +184,8 @@ function Quiz({
             ← 返回
           </button>
           <button className="primary-button" type="button" onClick={onNext}>
-            {isTextStep ? "孵化我的职业" : "下一题"} <span aria-hidden="true">→</span>
+            {step === questions.length - 1 ? "孵化我的人格" : "下一题"}{" "}
+            <span aria-hidden="true">→</span>
           </button>
         </div>
       </section>
@@ -310,8 +202,8 @@ function Hatching() {
         <span>?</span>
       </div>
       <p className="kicker">MATCHING YOUR GUILD SIGNAL</p>
-      <h1>正在翻找你的职业档案…</h1>
-      <p>当前为 Mock 随机抽取，正式版将由 Mosoo 判断输入。</p>
+      <h1>正在汇总你的人格分数…</h1>
+      <p>逐题累加八列分值，最高分就是本次结果。</p>
     </main>
   );
 }
@@ -346,15 +238,12 @@ function PetVisual({ persona }: { persona: Persona }) {
 }
 
 function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId: string; onRestart: () => void }) {
-  const classNumber =
-    persona.id === "shitter"
-      ? 9
-      : regularPersonaIds.indexOf(persona.id as (typeof regularPersonaIds)[number]) + 1;
+  const classNumber = personaIds.indexOf(persona.id) + 1;
 
   return (
     <main id="main-content" className="screen result-screen">
       <section className="result-visual">
-        <p className="kicker">YOUR HACKATHON CLASS / MOCK DRAW</p>
+        <p className="kicker">YOUR HACKATHON PERSONA / SCORE RESULT</p>
         <m.div
           initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -411,7 +300,7 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
           <button className="primary-button" type="button" onClick={onRestart}>
             再测一次 <span aria-hidden="true">↻</span>
           </button>
-          <span className="mock-note">Shitter 4% · 常规职业各 12%</span>
+          <span className="mock-note">8 QUESTIONS · SCORE MATRIX</span>
         </m.div>
       </m.section>
     </main>
@@ -422,7 +311,6 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
-  const [freeText, setFreeText] = useState("");
   const [error, setError] = useState("");
   const [result, setResult] = useState<{ persona: Persona; sessionId: string } | null>(null);
 
@@ -430,7 +318,6 @@ export default function App() {
     setPhase("quiz");
     setStep(0);
     setAnswers([]);
-    setFreeText("");
     setError("");
     setResult(null);
   }
@@ -454,17 +341,18 @@ export default function App() {
   }
 
   function next() {
-    if (step < questions.length && !answers[step]) {
+    if (!answers[step]) {
       setError("先选一个最像你的做法，再继续。");
       return;
     }
-    if (step < questions.length) {
+    if (step < questions.length - 1) {
       setStep((current) => current + 1);
       setError("");
       return;
     }
 
-    const persona = personas[pickPersonaId(secureDraw())];
+    const scoringResult = scoreQuestionnaire(answers);
+    const persona = personas[scoringResult.personaId];
     const sessionId = crypto.randomUUID();
     setResult({ persona, sessionId });
     setPhase("hatching");
@@ -481,10 +369,8 @@ export default function App() {
             <Quiz
               step={step}
               answers={answers}
-              freeText={freeText}
               error={error}
               onChoose={choose}
-              onText={setFreeText}
               onBack={back}
               onNext={next}
             />

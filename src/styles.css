@@ -53,7 +53,6 @@ body {
 }
 
 button,
-textarea,
 input {
   font: inherit;
 }
@@ -245,10 +244,6 @@ label {
   transform: rotate(6deg);
 }
 
-.text-answer .familiar--quiz {
-  top: -1.8rem;
-}
-
 .familiar--rail {
   position: static;
   display: none;
@@ -347,92 +342,6 @@ label {
   font-weight: 500;
 }
 
-.ticket-perf {
-  position: relative;
-  border-top: 2px dashed oklch(24% 0.035 258 / 0.45);
-}
-
-.ticket-perf::before,
-.ticket-perf::after {
-  content: "";
-  position: absolute;
-  top: -0.75rem;
-  width: 1.375rem;
-  height: 1.375rem;
-  border-radius: 50%;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-}
-
-.ticket-perf::before {
-  left: -0.8125rem;
-}
-
-.ticket-perf::after {
-  right: -0.8125rem;
-}
-
-.ticket-stub {
-  padding: 1.5rem 2.75rem 1.9rem;
-}
-
-.ticket-stub-title {
-  margin: 0 0 0.875rem;
-  color: var(--ink-muted);
-  font-size: 0.66rem;
-  font-weight: 700;
-}
-
-.ticket-roster {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 2.25rem;
-  row-gap: 0.44rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ticket-roster li {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  font-size: 0.74rem;
-  line-height: 1.4;
-  animation: roster-in 420ms var(--ease-out) both;
-  animation-delay: calc(var(--i) * 45ms + 120ms);
-}
-
-.ticket-roster .num {
-  flex: 0 0 auto;
-  color: var(--ink-muted);
-  font-family: var(--font-pixel);
-  font-variant-numeric: tabular-nums;
-}
-
-.ticket-roster b {
-  flex: 0 0 auto;
-  font-family: var(--font-pixel);
-  font-weight: 400;
-  font-size: 0.72rem;
-}
-
-.ticket-roster small {
-  margin-left: auto;
-  color: var(--ink-muted);
-  font-size: 0.74rem;
-  font-weight: 500;
-  text-align: right;
-}
-
-.ticket-roster li.classified b {
-  color: var(--blue);
-}
-
-.ticket-roster li.classified small {
-  letter-spacing: 0.15em;
-}
-
 .intro-actions,
 .result-actions,
 .quiz-actions {
@@ -477,8 +386,7 @@ label {
 
 .primary-button:focus-visible,
 .text-button:focus-visible,
-.choice:has(input:focus-visible),
-textarea:focus-visible {
+.choice:has(input:focus-visible) {
   outline: 3px solid var(--orange);
   outline-offset: 4px;
 }
@@ -557,11 +465,6 @@ textarea:focus-visible {
 .question-content > h1 {
   animation: question-in 240ms var(--ease-out) backwards;
   animation-delay: 30ms;
-}
-
-.question-content .text-answer {
-  animation: question-in 240ms var(--ease-out) backwards;
-  animation-delay: 60ms;
 }
 
 .question-content .choice {
@@ -658,43 +561,6 @@ textarea:focus-visible {
   margin: 0.65rem 0 0;
   color: var(--red);
   font-size: 0.84rem;
-  font-weight: 800;
-}
-
-.text-answer {
-  position: relative;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.text-answer label {
-  color: var(--ink-muted);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.text-answer textarea {
-  width: 100%;
-  resize: vertical;
-  padding: 1rem;
-  color: var(--ink);
-  background: var(--paper-bright);
-  border: 2px solid var(--ink);
-  border-radius: 0;
-  font-size: 1.05rem;
-  line-height: 1.7;
-}
-
-.text-answer textarea::placeholder {
-  color: oklch(50% 0.035 258);
-}
-
-.text-answer > span {
-  position: absolute;
-  right: 0.75rem;
-  bottom: 0.65rem;
-  color: var(--ink-muted);
-  font-size: 0.72rem;
   font-weight: 800;
 }
 
@@ -993,13 +859,6 @@ textarea:focus-visible {
   }
 }
 
-@keyframes roster-in {
-  from {
-    opacity: 0;
-    transform: translateX(0.75rem);
-  }
-}
-
 @keyframes seal-turn {
   from {
     transform: rotate(-8deg) scale(0.95);
@@ -1102,15 +961,6 @@ textarea:focus-visible {
 
   .ticket-main h1 {
     font-size: clamp(1.9rem, 8.5vw, 2.4rem);
-  }
-
-  .ticket-stub {
-    padding: 1.25rem 1.625rem 1.625rem;
-  }
-
-  .ticket-roster {
-    grid-template-columns: 1fr;
-    row-gap: 0.375rem;
   }
 
   .familiar--page-1,

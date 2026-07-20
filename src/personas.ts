@@ -1,132 +1,106 @@
-export const regularPersonaIds = [
-  "tactician",
-  "artificer",
-  "cartographer",
-  "weaver",
-  "warden",
-  "ranger",
+export const personaIds = [
+  "kobe-laoda",
+  "maodie",
+  "big-dog-bark",
+  "gugugaga",
+  "mowan",
   "jiahao",
-  "alchemist",
+  "poop",
+  "nailong-daxiao",
 ] as const;
 
-export type RegularPersonaId = (typeof regularPersonaIds)[number];
-export type PersonaId = RegularPersonaId | "shitter";
+export type PersonaId = (typeof personaIds)[number];
 
-export type Persona = {
+export interface Persona {
   id: PersonaId;
   english: string;
   chinese: string;
   description: string;
-  strengths: [string, string, string];
+  strengths: readonly [string, string, string];
   warning: string;
   color: string;
   sigil: string;
-};
+}
 
-export const personas: Record<PersonaId, Persona> = {
-  tactician: {
-    id: "tactician",
-    english: "Tactician",
-    chinese: "蓝图策士",
-    description: "先定义目标、拆解路线、安排优先级，让团队始终朝着可交付成果推进。",
-    strengths: ["路线拆解", "节奏控制", "关键取舍"],
-    warning: "别把所有变量都规划完才允许团队出发。",
-    color: "oklch(53% 0.17 251)",
-    sigil: "△",
+export const personas = {
+  "kobe-laoda": {
+    id: "kobe-laoda",
+    english: "Kobe Laoda",
+    chinese: "科比牢大（熬夜哥）",
+    description: "白天看似没动静，深夜却会进入主程巅峰；越接近 deadline，手速越快。",
+    strengths: ["深夜爆发", "极限冲刺", "主程担当"],
+    warning: "别把所有进度都留到凌晨，队友的心率也是项目资源。",
+    color: "oklch(66% 0.18 62)",
+    sigil: "24",
   },
-  artificer: {
-    id: "artificer",
-    english: "Artificer",
-    chinese: "技栈奇械师",
-    description: "喜欢独立攻克核心技术，把模型、后端、硬件或复杂系统真正做出来。",
-    strengths: ["核心构建", "技术攻坚", "原型落地"],
-    warning: "真正能被体验的功能，比完美但孤立的技术更重要。",
-    color: "oklch(67% 0.18 63)",
-    sigil: "⌘",
+  maodie: {
+    id: "maodie",
+    english: "Maodie",
+    chinese: "耄耋",
+    description: "敏感易怒者。很容易把一句不同意见听成针对自己，一上头就哈气、开喷、攻击队友。",
+    strengths: ["高度敏感", "瞬间急眼", "主动开喷"],
+    warning: "感到被冒犯，不等于别人真的在攻击你。先停一下，再决定要不要还击。",
+    color: "oklch(58% 0.18 22)",
+    sigil: "!",
   },
-  cartographer: {
-    id: "cartographer",
-    english: "Cartographer",
-    chinese: "体验绘界师",
-    description: "从用户旅程和评委视角倒推产品，决定功能如何组合成完整体验。",
-    strengths: ["用户视角", "体验编排", "目标校准"],
-    warning: "地图不是领地，尽早让真实用户踩一遍路线。",
-    color: "oklch(63% 0.13 180)",
-    sigil: "◎",
+  "big-dog-bark": {
+    id: "big-dog-bark",
+    english: "Big Dog Bark",
+    chinese: "大狗叫",
+    description: "扩音器汇报官。擅长激情解说和现场表演，确保全场都听见项目的存在。",
+    strengths: ["激情汇报", "现场控场", "音量压制"],
+    warning: "音量能吸引注意力，但清楚的故事才能留下记忆。",
+    color: "oklch(72% 0.17 77)",
+    sigil: ")))",
   },
-  weaver: {
-    id: "weaver",
-    english: "Weaver",
-    chinese: "像素织师",
-    description: "把粗糙能力织成清晰、易用、有质感的界面，尤其在意交互与视觉细节。",
-    strengths: ["界面表达", "交互打磨", "视觉统一"],
-    warning: "先让主路径成立，再处理只有设计师会发现的一像素。",
-    color: "oklch(64% 0.2 18)",
-    sigil: "✦",
+  gugugaga: {
+    id: "gugugaga",
+    english: "Gugugaga",
+    chinese: "咕咕嘎嘎（高松灯）",
+    description: "群聊搬运工。项目进度未必领先，但抽象视频库存和群聊活跃度无人能敌。",
+    strengths: ["抽象搬运", "群聊续命", "素材储备"],
+    warning: "转发不是 commit，偶尔也要让进度条动一下。",
+    color: "oklch(67% 0.15 191)",
+    sigil: "咕",
   },
-  warden: {
-    id: "warden",
-    english: "Warden",
-    chinese: "热修守望者",
-    description: "哪里缺人就补哪里，负责连接模块、修复断点，守住项目最后交付。",
-    strengths: ["模块整合", "风险兜底", "可靠交付"],
-    warning: "持续救火会掩盖边界不清，记得让责任回到主人手里。",
-    color: "oklch(57% 0.14 143)",
-    sigil: "⬡",
-  },
-  ranger: {
-    id: "ranger",
-    english: "Ranger",
-    chinese: "故障巡猎者",
-    description: "对异常极其敏感，擅长追踪 Bug、定位根因、排除隐藏风险。",
-    strengths: ["异常侦测", "根因定位", "压力排障"],
-    warning: "不要因为还能找到 Bug，就忘了项目也需要停止线。",
-    color: "oklch(49% 0.18 286)",
-    sigil: "⌖",
+  mowan: {
+    id: "mowan",
+    english: "Mowan",
+    chinese: "魔丸",
+    description: "混沌捣乱者。强推、关服务、乱改环境变量，制造事故后还能装作无事发生。",
+    strengths: ["打破秩序", "意外实验", "极速跑路"],
+    warning: "混沌是节目效果，不是跳过备份和 code review 的理由。",
+    color: "oklch(61% 0.23 25)",
+    sigil: "丸",
   },
   jiahao: {
     id: "jiahao",
     english: "Jiahao",
     chinese: "嘉豪",
-    description: "把每次 Demo 都当成主舞台；敢秀、敢表达、全情投入，哪怕稍微用力过猛。",
-    strengths: ["现场表现", "情绪感染", "记忆点制造"],
-    warning: "舞台感要为产品服务，别让姿态盖过真正的成果。",
+    description: "术语型伪专家。专业名词张口就来，追问现在具体做什么，却只会换个更大的概念。",
+    strengths: ["术语连发", "概念升维", "回避落地"],
+    warning: "专业词不是烟雾弹。能说清怎么做、真正做出来，才算技术方案。",
     color: "oklch(54% 0.24 328)",
     sigil: "〽",
   },
-  alchemist: {
-    id: "alchemist",
-    english: "Alchemist",
-    chinese: "灵感炼金师",
-    description: "喜欢把 AI、API、硬件和新奇想法快速混合，用实验炼出意外的产品可能。",
-    strengths: ["跨界组合", "快速实验", "概念突破"],
-    warning: "每多一种原料，就多一个可能在凌晨三点爆炸的接口。",
-    color: "oklch(67% 0.18 121)",
-    sigil: "◇",
+  poop: {
+    id: "poop",
+    english: "Poop",
+    chinese: "💩",
+    description: "随地大小便的人。不分场合，走到哪里拉到哪里，是不可预测的现场变量。",
+    strengths: ["随处出现", "毫无包袱", "留下痕迹"],
+    warning: "抽象归抽象，公共卫生和团队边界还是要守住。",
+    color: "oklch(49% 0.1 57)",
+    sigil: "💩",
   },
-  shitter: {
-    id: "shitter",
-    english: "Shitter",
-    chinese: "捣乱者",
-    description: "稀有混沌职业：总能让计划偏航，却也常常撞出全场最难忘的意外。",
-    strengths: ["打破惯性", "意外喜剧", "混沌灵感"],
-    warning: "捣乱是彩蛋，不是伤害队友或破坏交付的通行证。",
-    color: "oklch(70% 0.2 49)",
-    sigil: "?!",
+  "nailong-daxiao": {
+    id: "nailong-daxiao",
+    english: "Nailong Laugh",
+    chinese: "奶龙大笑",
+    description: "爆笑气氛组。无论别人说什么先捧腹大笑，用魔性笑声打断严肃讨论。",
+    strengths: ["爆笑捧场", "气氛解冻", "压力释放"],
+    warning: "笑声能救场，也要给认真说话的人留出完整的一分钟。",
+    color: "oklch(78% 0.17 91)",
+    sigil: "哈",
   },
-};
-
-export function pickPersonaId(draw: number): PersonaId {
-  if (!Number.isFinite(draw) || draw < 0 || draw >= 1) {
-    throw new RangeError("draw must be a finite number in [0, 1)");
-  }
-  if (draw < 0.04) return "shitter";
-  return regularPersonaIds[Math.min(7, Math.floor((draw - 0.04) / 0.12))];
-}
-
-export function secureDraw(): number {
-  const value = new Uint32Array(1);
-  crypto.getRandomValues(value);
-  return value[0] / 0x1_0000_0000;
-}
-
+} satisfies Record<PersonaId, Persona>;
