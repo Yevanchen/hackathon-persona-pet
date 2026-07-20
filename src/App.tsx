@@ -73,6 +73,25 @@ const questions = [
 
 type Phase = "intro" | "quiz" | "hatching" | "result";
 
+// Hand-drawn geometric guild familiars (original sparkles.dev-style SVG art in
+// /public/familiars). Decorative stickers: static, aria-hidden, never interactive.
+type FamiliarName = "squish" | "rondo" | "wedge" | "brick" | "archie" | "elbow" | "zap";
+
+function Familiar({ name, className }: { name: FamiliarName; className: string }) {
+  return (
+    <img
+      src={`/familiars/${name}.svg`}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      className={`familiar ${className}`}
+    />
+  );
+}
+
+// One watcher per quiz step (6 questions + the free-text confession).
+const quizCast: FamiliarName[] = ["squish", "wedge", "elbow", "rondo", "zap", "brick", "archie"];
+
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
 const cascade: Variants = {
@@ -103,37 +122,68 @@ function Header({ compact = false }: { compact?: boolean }) {
 function Intro({ onStart }: { onStart: () => void }) {
   return (
     <main id="main-content" className="screen intro-screen">
-      <section className="intro-copy" aria-labelledby="intro-title">
-        <p className="kicker">HACKATHON CLASSIFICATION OFFICE / 2026</p>
-        <h1 id="intro-title">
-          领取你的
-          <span>黑客松职业</span>
-        </h1>
-        <p className="intro-lead">
-          六个现场选择，一段凌晨三点的自白。无需登录，看看你的队伍会把哪只 Codex Pet 交给你。
-        </p>
-        <div className="intro-actions">
-          <button className="primary-button" type="button" onClick={onStart}>
-            开始匹配 <span aria-hidden="true">→</span>
-          </button>
-          <span className="time-note">约 60–90 秒</span>
-        </div>
-      </section>
+      <Familiar name="rondo" className="familiar--page-1" />
+      <Familiar name="brick" className="familiar--page-2" />
+      <Familiar name="elbow" className="familiar--page-3" />
 
-      <aside className="guild-poster" aria-label="八种常规职业和一个隐藏职业">
-        <div className="poster-stamp">8+1</div>
-        <p>GUILD ROSTER</p>
-        <ol>
-          {regularPersonaIds.map((id, index) => (
-            <li key={id} style={{ "--i": index } as CSSProperties}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <b>{personas[id].english}</b>
-              <small>{personas[id].chinese}</small>
-            </li>
-          ))}
-        </ol>
-        <div className="classified-strip">+ ONE CLASSIFIED CLASS</div>
-      </aside>
+      <div className="ticket-wrap">
+        <Familiar name="archie" className="familiar--ticket-peek" />
+        <Familiar name="zap" className="familiar--ticket-corner" />
+        <Familiar name="squish" className="familiar--ticket-left" />
+        <Familiar name="wedge" className="familiar--ticket-bottom" />
+
+        <section className="ticket" aria-labelledby="intro-title">
+          <div className="ticket-main">
+            <div className="ticket-head">
+              <div className="ticket-stamp" aria-hidden="true">
+                黑客松分类办公室
+                <span>CLASSIFICATION OFFICE · 2026</span>
+              </div>
+              <div className="ticket-no" aria-hidden="true">
+                ADMIT ONE
+                <br />
+                NO. 0847
+              </div>
+            </div>
+
+            <h1 id="intro-title">
+              领取你的
+              <br />
+              黑客松职业
+            </h1>
+            <p className="intro-lead">
+              六个现场选择，一段凌晨三点的自白。无需登录，看看会把哪只 Codex Pet 交给你。
+            </p>
+
+            <div className="intro-actions">
+              <button className="primary-button" type="button" onClick={onStart}>
+                开始匹配 <span aria-hidden="true">→</span>
+              </button>
+              <span className="time-note">约 60–90 秒</span>
+            </div>
+          </div>
+
+          <div className="ticket-perf" aria-hidden="true" />
+
+          <div className="ticket-stub" aria-label="八种常规职业和一个隐藏职业">
+            <p className="ticket-stub-title">本处签发以下职业 · GUILD ROSTER</p>
+            <ol className="ticket-roster">
+              {regularPersonaIds.map((id, index) => (
+                <li key={id} style={{ "--i": index } as CSSProperties}>
+                  <span className="num">{String(index + 1).padStart(2, "0")}</span>
+                  <b>{personas[id].english}</b>
+                  <small>{personas[id].chinese}</small>
+                </li>
+              ))}
+              <li className="classified" style={{ "--i": 8 } as CSSProperties}>
+                <span className="num">+1</span>
+                <b>CLASSIFIED</b>
+                <small>档案封存</small>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
@@ -176,6 +226,7 @@ function Quiz({
           <span />
         </div>
         <span className="progress-total">/{String(total).padStart(2, "0")}</span>
+        <Familiar name={quizCast[step % quizCast.length]} className="familiar--rail" />
       </aside>
 
       <section className="question-panel">
@@ -185,6 +236,7 @@ function Quiz({
 
           {isTextStep ? (
             <div className="text-answer">
+              <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
               <label htmlFor="night-answer">选填，不需要认真得像周报。</label>
               <textarea
                 id="night-answer"
@@ -199,6 +251,7 @@ function Quiz({
           ) : (
             <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
               <legend className="sr-only">选择最像你的做法</legend>
+              <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
               {question.choices.map((choice, index) => {
                 const checked = answers[step] === choice;
                 return (
@@ -251,6 +304,8 @@ function Quiz({
 function Hatching() {
   return (
     <main id="main-content" className="screen hatching-screen" aria-live="polite">
+      <Familiar name="wedge" className="familiar--hatch-left" />
+      <Familiar name="squish" className="familiar--hatch-right" />
       <div className="hatch-seal" aria-hidden="true">
         <span>?</span>
       </div>
@@ -316,6 +371,7 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
           <span>SESSION</span>
           <code>{sessionId}</code>
         </div>
+        <Familiar name="rondo" className="familiar--result" />
       </section>
 
       <m.section
