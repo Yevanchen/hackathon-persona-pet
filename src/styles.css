@@ -247,7 +247,7 @@ label {
 .choices > .familiar--quiz {
   opacity: 0;
   transform: translateY(75%) rotate(6deg);
-  transition: opacity 180ms, transform 320ms var(--ease-out);
+  transition: opacity 140ms, transform 260ms var(--ease-out);
 }
 
 .choices:has(input:checked) > .familiar--quiz {
@@ -565,23 +565,6 @@ label {
 
 .question-panel {
   max-width: 55rem;
-}
-
-/* Stagger siblings, not the container — animating both compounds transforms.
-   backwards fill (not both) holds the hidden start during the delay without
-   persisting forwards, so .choice's own checked translateX transition survives. */
-.question-content > .kicker {
-  animation: question-in 200ms var(--ease-out) backwards;
-}
-
-.question-content > h1 {
-  animation: question-in 240ms var(--ease-out) backwards;
-  animation-delay: 30ms;
-}
-
-.question-content .choice {
-  animation: question-in 240ms var(--ease-out) backwards;
-  animation-delay: calc(60ms + var(--i) * 30ms);
 }
 
 .question-panel > h1 {
@@ -976,13 +959,6 @@ label {
   from {
     opacity: 0;
     transform: translateY(1rem);
-  }
-}
-
-@keyframes question-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
   }
 }
 
