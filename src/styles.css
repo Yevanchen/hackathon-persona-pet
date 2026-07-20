@@ -245,6 +245,17 @@ label {
   transform: rotate(6deg);
 }
 
+.choices > .familiar--quiz {
+  opacity: 0;
+  transform: translateY(75%) rotate(6deg);
+  transition: opacity 180ms, transform 320ms var(--ease-out);
+}
+
+.choices:has(input:checked) > .familiar--quiz {
+  opacity: 1;
+  transform: translateY(0) rotate(6deg);
+}
+
 .text-answer .familiar--quiz {
   top: -1.8rem;
 }
