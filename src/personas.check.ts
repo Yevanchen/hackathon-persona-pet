@@ -33,6 +33,42 @@ for (const question of questionnaire) {
   }
 }
 
+const poopScoreIndex = scoreColumnPersonaIds.indexOf("poop");
+const poopScoringChoices = questionnaire.flatMap((question) =>
+  question.choices
+    .filter((choice) => choice.scores[poopScoreIndex] > 0)
+    .map((choice) => `${question.id}/${choice.id}`),
+);
+assert.deepEqual(poopScoringChoices, ["motivation/f", "legacy/g"]);
+
+const structuralWinCounts = createEmptyPersonaTotals();
+let structuralCombinationCount = 0;
+
+function countStructuralWinners(questionIndex: number, totals: ReturnType<typeof createEmptyPersonaTotals>) {
+  if (questionIndex === questionnaire.length) {
+    structuralCombinationCount += 1;
+    structuralWinCounts[selectHighestScoringPersona(totals)] += 1;
+    return;
+  }
+
+  for (const choice of questionnaire[questionIndex].choices) {
+    const nextTotals = { ...totals };
+    for (const [personaIndex, personaId] of personaIds.entries()) {
+      nextTotals[personaId] += choice.scores[personaIndex];
+    }
+    countStructuralWinners(questionIndex + 1, nextTotals);
+  }
+}
+
+countStructuralWinners(0, createEmptyPersonaTotals());
+const regularStructuralShares = personaIds
+  .filter((personaId) => personaId !== "poop")
+  .map((personaId) => structuralWinCounts[personaId] / structuralCombinationCount);
+assert.ok(
+  Math.max(...regularStructuralShares) - Math.min(...regularStructuralShares) <= 0.05,
+  "non-easter-egg persona result shares must stay within five percentage points",
+);
+
 const twoChoiceQuestion = {
   ...questionnaire[0],
   choices: [questionnaire[0].choices[0], questionnaire[0].choices[1]],

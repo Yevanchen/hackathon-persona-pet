@@ -67,6 +67,7 @@ The shortlist does not need equal popularity per persona. A small set of highly 
 - Submission sums the selected rows across all questions; the highest persona total wins.
 - Ties resolve deterministically by canonical persona order. There is no random tie-breaker.
 - Question copy, choice copy, and score values are draft configuration to be calibrated separately.
+- Score strength is coverage-aware: broad personas use smaller increments, while personas with fewer natural answer opportunities may use larger increments. The two literal physical-defecation choices are the only `poop` signals and each scores 10 as an easter egg. Exhaustive equal-choice enumeration must keep the seven non-easter-egg result shares within five percentage points of one another.
 - Persona coverage is a questionnaire-level calibration goal, not a per-question requirement. Write plausible answers first, then score only the personas supported by the behavior. Sparse score rows are expected; never invent an unnatural answer merely to give a persona representation.
 - Every retained choice must provide positive evidence for at least one persona. An all-zero row adds no classification information, so remove that choice instead of forcing a mapping. If a recurring natural behavior maps to no persona, reconsider the roster rather than inventing scores.
 - There is no target choice count per question. Keep only plausible, meaningfully distinct answers; if an option exists mainly to fill a persona column, remove it. The `n ≥ 2` rule is a schema boundary, not a writing template.
