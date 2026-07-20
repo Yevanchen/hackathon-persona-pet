@@ -20,7 +20,19 @@ export type Persona = {
   warning: string;
   color: string;
   artwork: string;
+  stats: Record<PersonaId, number>;
 };
+
+export const personaStatDefinitions: ReadonlyArray<{ id: PersonaId; label: string }> = [
+  { id: "laoda", label: "深夜续航" },
+  { id: "bigdog", label: "开麦分贝" },
+  { id: "maodie", label: "哈气指数" },
+  { id: "mowan", label: "搞事概率" },
+  { id: "gugugaga", label: "群聊浓度" },
+  { id: "shitter", label: "屎山适应" },
+  { id: "nailong", label: "爆笑含量" },
+  { id: "jiahao", label: "登场气场" },
+];
 
 export const personas: Record<PersonaId, Persona> = {
   laoda: {
@@ -32,6 +44,7 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "熬夜不是勋章，提前暴露风险比最后通宵更可靠。",
     color: "oklch(67% 0.18 63)",
     artwork: "/characters/01-kobe-laoda.png",
+    stats: { laoda: 100, bigdog: 65, maodie: 58, mowan: 72, gugugaga: 42, shitter: 88, nailong: 38, jiahao: 80 },
   },
   bigdog: {
     id: "bigdog",
@@ -42,6 +55,7 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "声量不是领导力；每次开麦都要带来信息或行动。",
     color: "oklch(53% 0.17 251)",
     artwork: "/characters/03-big-dog-bark.png",
+    stats: { laoda: 82, bigdog: 100, maodie: 62, mowan: 70, gugugaga: 94, shitter: 64, nailong: 78, jiahao: 91 },
   },
   maodie: {
     id: "maodie",
@@ -52,6 +66,7 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "先说证据再哈气，锋利的判断也需要让队友接得住。",
     color: "oklch(49% 0.18 286)",
     artwork: "/characters/02-maodie.png",
+    stats: { laoda: 76, bigdog: 88, maodie: 100, mowan: 64, gugugaga: 45, shitter: 86, nailong: 22, jiahao: 61 },
   },
   mowan: {
     id: "mowan",
@@ -62,6 +77,7 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "实验要小步、可逆；删库关服只适合留在梗里。",
     color: "oklch(67% 0.18 121)",
     artwork: "/characters/05-mowan.png",
+    stats: { laoda: 85, bigdog: 73, maodie: 79, mowan: 100, gugugaga: 48, shitter: 96, nailong: 66, jiahao: 84 },
   },
   gugugaga: {
     id: "gugugaga",
@@ -72,6 +88,7 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "消息量不等于交付，记得认领一个真正属于你的结果。",
     color: "oklch(57% 0.14 143)",
     artwork: "/characters/04-gugugaga.png",
+    stats: { laoda: 68, bigdog: 85, maodie: 57, mowan: 61, gugugaga: 100, shitter: 72, nailong: 74, jiahao: 59 },
   },
   shitter: {
     id: "shitter",
@@ -82,6 +99,7 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "临时补丁必须可回滚、能交接；别让队友替你收拾残局。",
     color: "oklch(70% 0.2 49)",
     artwork: "/characters/07-poop.png",
+    stats: { laoda: 94, bigdog: 63, maodie: 81, mowan: 98, gugugaga: 36, shitter: 100, nailong: 51, jiahao: 49 },
   },
   nailong: {
     id: "nailong",
@@ -92,6 +110,7 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "气氛之外也要认领明确贡献，别让笑声替代交付。",
     color: "oklch(64% 0.2 18)",
     artwork: "/characters/08-nailong-daxiao.png",
+    stats: { laoda: 66, bigdog: 80, maodie: 24, mowan: 68, gugugaga: 89, shitter: 44, nailong: 100, jiahao: 77 },
   },
   jiahao: {
     id: "jiahao",
@@ -102,5 +121,6 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "舞台感要为产品服务，别让姿态盖过真正的成果。",
     color: "oklch(54% 0.24 328)",
     artwork: "/characters/06-jiahao.png",
+    stats: { laoda: 79, bigdog: 94, maodie: 46, mowan: 90, gugugaga: 76, shitter: 55, nailong: 86, jiahao: 100 },
   },
 };

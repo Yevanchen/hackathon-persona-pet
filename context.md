@@ -132,7 +132,7 @@ This flow is directionally agreed but the exact copy is still open:
 3. A session shows seven multiple-choice questions, numbered continuously from 1–7 regardless of its internal path.
 4. One optional free-text prompt, numbered 8: “凌晨 3 点，队伍最希望你还在做什么？” Suggested limit: 80 Chinese characters.
 5. Submission enters a short Pet-hatching transition while routing runs.
-6. The result page shows the bilingual role, role statement, team strengths, overload warning, complementary teammate, animated Pet, ZIP download, stable URL, and QR code.
+6. The result page shows the bilingual role, role statement, a fixed eight-axis meme stat sheet, team strengths, overload warning, complementary teammate, animated Pet, ZIP download, stable URL, and QR code.
 7. A failed classification keeps the answers and offers retry. It never assigns a random persona as fallback.
 
 ## Asset contract

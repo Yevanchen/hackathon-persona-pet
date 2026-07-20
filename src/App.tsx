@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
-import { personaIds, personas, type Persona } from "./personas";
+import { personaIds, personas, personaStatDefinitions, type Persona } from "./personas";
 import {
   FREE_TEXT_PROMPT,
   START_QUESTION_ID,
@@ -356,6 +356,29 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
         <m.p className="result-description" variants={cascadeItem}>
           {persona.description}
         </m.p>
+
+        <m.section className="persona-stats" variants={cascadeItem} aria-labelledby="persona-stats-title">
+          <div className="persona-stats-head">
+            <h2 id="persona-stats-title">角色梗值</h2>
+            <span>STATIC BUILD / 100</span>
+          </div>
+          <ul>
+            {personaStatDefinitions.map(({ id, label }) => (
+              <li key={id}>
+                <span>{label}</span>
+                <strong>{persona.stats[id]}</strong>
+                <meter
+                  min="0"
+                  max="100"
+                  value={persona.stats[id]}
+                  aria-label={`${label} ${persona.stats[id]} 分`}
+                  style={{ "--meter-color": persona.color } as CSSProperties}
+                />
+              </li>
+            ))}
+          </ul>
+          <p>固定人设值，仅供玩梗，不代表能力排名。</p>
+        </m.section>
 
         <m.div className="result-facts" variants={cascadeItem}>
           <div>
