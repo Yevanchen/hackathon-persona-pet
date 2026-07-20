@@ -668,16 +668,8 @@ label {
   translate: 2px -2px;
 }
 
-.form-error {
-  min-height: 1.4rem;
-  margin: 0.65rem 0 0;
-  color: var(--red);
-  font-size: 0.84rem;
-  font-weight: 800;
-}
-
 .quiz-actions {
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .hatching-screen {

@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
 import { personaIds, personas, type Persona } from "./personas.ts";
 import { PetVisual } from "./PetVisual.tsx";
@@ -135,19 +135,15 @@ function Intro({ onStart }: { onStart: () => void }) {
 type QuizProps = {
   step: number;
   answers: string[];
-  error: string;
   onChoose: (choice: string) => void;
   onBack: () => void;
-  onNext: () => void;
 };
 
 function Quiz({
   step,
   answers,
-  error,
   onChoose,
   onBack,
-  onNext,
 }: QuizProps) {
   const total = questions.length;
   const progress = ((step + 1) / total) * 100;
@@ -173,7 +169,7 @@ function Quiz({
           <p className="kicker">{question.eyebrow}</p>
           <h1>{question.title}</h1>
 
-          <fieldset className="choices" aria-describedby={error ? "choice-error" : undefined}>
+          <fieldset className="choices" disabled={Boolean(answers[step])}>
             <legend className="sr-only">选择最像你的做法</legend>
             <Familiar name={quizCast[step % quizCast.length]} className="familiar--quiz" />
             {question.choices.map((choice, index) => {
@@ -207,17 +203,9 @@ function Quiz({
           </fieldset>
         </div>
 
-        <p className="form-error" id="choice-error" aria-live="polite">
-          {error}
-        </p>
-
         <div className="quiz-actions">
           <button className="text-button" type="button" onClick={onBack}>
-            ← 返回
-          </button>
-          <button className="primary-button" type="button" onClick={onNext}>
-            {step === questions.length - 1 ? "孵化我的人格" : "下一题"}{" "}
-            <span aria-hidden="true">→</span>
+            ← 上一题
           </button>
         </div>
       </section>
@@ -356,52 +344,52 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
-  const [error, setError] = useState("");
   const [result, setResult] = useState<{ persona: Persona; sessionId: string } | null>(null);
+  const advanceTimer = useRef<number | null>(null);
+
+  function clearAdvanceTimer() {
+    if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+  }
 
   function start() {
+    clearAdvanceTimer();
     setPhase("quiz");
     setStep(0);
     setAnswers([]);
-    setError("");
     setResult(null);
   }
 
   function choose(choice: string) {
-    setAnswers((current) => {
-      const next = [...current];
-      next[step] = choice;
-      return next;
-    });
-    setError("");
+    if (advanceTimer.current !== null) return;
+
+    const nextAnswers = [...answers];
+    nextAnswers[step] = choice;
+    setAnswers(nextAnswers);
+
+    advanceTimer.current = window.setTimeout(() => {
+      advanceTimer.current = null;
+      if (step < questions.length - 1) {
+        setStep(step + 1);
+        return;
+      }
+
+      const scoringResult = scoreQuestionnaire(nextAnswers);
+      const persona = personas[scoringResult.personaId];
+      setResult({ persona, sessionId: crypto.randomUUID() });
+      setPhase("hatching");
+      window.setTimeout(() => setPhase("result"), 1100);
+    }, 320);
   }
 
   function back() {
+    clearAdvanceTimer();
     if (step === 0) {
       setPhase("intro");
       return;
     }
-    setStep((current) => current - 1);
-    setError("");
-  }
-
-  function next() {
-    if (!answers[step]) {
-      setError("先选一个最像你的做法，再继续。");
-      return;
-    }
-    if (step < questions.length - 1) {
-      setStep((current) => current + 1);
-      setError("");
-      return;
-    }
-
-    const scoringResult = scoreQuestionnaire(answers);
-    const persona = personas[scoringResult.personaId];
-    const sessionId = crypto.randomUUID();
-    setResult({ persona, sessionId });
-    setPhase("hatching");
-    window.setTimeout(() => setPhase("result"), 1100);
+    setAnswers((current) => current.slice(0, step - 1));
+    setStep(step - 1);
   }
 
   return (
@@ -414,10 +402,8 @@ export default function App() {
             <Quiz
               step={step}
               answers={answers}
-              error={error}
               onChoose={choose}
               onBack={back}
-              onNext={next}
             />
           )}
           {phase === "hatching" && <Hatching />}
