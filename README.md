@@ -25,5 +25,6 @@ Production targets the `WH-2099` Cloudflare account at `https://hackathon-pet.mo
 - [`src/questionnaire.json`](src/questionnaire.json) is the single editable source for all question text, choice text, weights, and questionnaire version.
 - Question copy, choice copy, and score matrices remain draft configuration.
 - Persona meanings and scoring boundaries are documented in [`docs/personas.md`](docs/personas.md).
-- Jiahao uses the supplied candidate spritesheet. Other personas use visual placeholders.
-- Stable result URLs, QR codes, storage, and production asset downloads are not implemented.
+- Every persona has an animated, draggable Pet spritesheet, four static meme stats, and a downloadable ZIP package.
+- The homepage roster and result page include Mosoo branding while preserving the original decorative familiars.
+- Stable result URLs, QR codes, and storage are not implemented.

@@ -1,7 +1,19 @@
 import { useState, type CSSProperties } from "react";
 import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
 import { personaIds, personas, type Persona } from "./personas.ts";
+import { PetVisual } from "./PetVisual.tsx";
 import { questionnaire as questions, scoreQuestionnaire } from "./questionnaire.ts";
+
+const introRoster = [
+  { name: "牢大", tagline: "熬夜当主程" },
+  { name: "大狗叫", tagline: "为项目激情开麦" },
+  { name: "耄耋", tagline: "一言不合就哈气" },
+  { name: "魔丸", tagline: "删库关服就跑路" },
+  { name: "咕咕嘎嘎", tagline: "群聊贡献百分百" },
+  { name: "Shitter", tagline: "在码仓拉屎" },
+  { name: "奶蛙", tagline: "全程爆笑捧场" },
+  { name: "嘉豪", tagline: "重新定义小功能" },
+] as const;
 
 type Phase = "intro" | "quiz" | "hatching" | "result";
 
@@ -94,7 +106,27 @@ function Intro({ onStart }: { onStart: () => void }) {
               <span className="time-note">约 60–90 秒</span>
             </div>
           </div>
+
+          <div className="ticket-perf" aria-hidden="true" />
+
+          <div className="ticket-stub" aria-label="八种黑客松人格">
+            <p className="ticket-stub-title">本处签发以下职业 · GUILD ROSTER</p>
+            <ol className="ticket-roster">
+              {introRoster.map(({ name, tagline }, index) => (
+                <li key={name} style={{ "--i": index } as CSSProperties}>
+                  <span className="num">{String(index + 1).padStart(2, "0")}</span>
+                  <b>{name}</b>
+                  <small>{tagline}</small>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
+
+        <div className="mosoo-credit">
+          <span>POWERED BY</span>
+          <img src="/mosoo-logo.svg" alt="Mosoo" />
+        </div>
       </div>
     </main>
   );
@@ -208,36 +240,15 @@ function Hatching() {
   );
 }
 
-function PetVisual({ persona }: { persona: Persona }) {
-  if (persona.id === "jiahao") {
-    return (
-      <div className="pet-stage pet-stage--jiahao">
-        <div className="jiahao-sprite" role="img" aria-label="嘉豪 Codex Pet 动画预览" />
-        <span>候选资产预览</span>
-      </div>
-    );
-  }
-
-  const style = { "--pet-color": persona.color } as CSSProperties;
-  return (
-    <div className="pet-stage" style={style}>
-      <div className="placeholder-pet" role="img" aria-label={`${persona.chinese}宠物风格占位符`}>
-        <i className="pet-ear pet-ear--left" />
-        <i className="pet-ear pet-ear--right" />
-        <div className="pet-head">
-          <i className="pet-eye pet-eye--left" />
-          <i className="pet-eye pet-eye--right" />
-        </div>
-        <div className="pet-body">
-          <b>{persona.sigil}</b>
-        </div>
-      </div>
-      <span>正式 Pet 制作中</span>
-    </div>
-  );
-}
-
-function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId: string; onRestart: () => void }) {
+function Result({
+  persona,
+  sessionId,
+  onRestart,
+}: {
+  persona: Persona;
+  sessionId: string;
+  onRestart: () => void;
+}) {
   const classNumber = personaIds.indexOf(persona.id) + 1;
 
   return (
@@ -281,6 +292,33 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
           {persona.description}
         </m.p>
 
+        <m.section
+          className="persona-stats"
+          variants={cascadeItem}
+          aria-labelledby="persona-stats-title"
+        >
+          <div className="persona-stats-head">
+            <h2 id="persona-stats-title">角色梗值</h2>
+            <span>STATIC BUILD / 100</span>
+          </div>
+          <ul>
+            {persona.stats.map(({ label, value }) => (
+              <li key={label}>
+                <span>{label}</span>
+                <strong>{value}</strong>
+                <meter
+                  min="0"
+                  max="100"
+                  value={value}
+                  aria-label={`${label} ${value} 分`}
+                  style={{ "--meter-color": persona.color } as CSSProperties}
+                />
+              </li>
+            ))}
+          </ul>
+          <p>固定人设值，仅供玩梗，不代表能力排名。</p>
+        </m.section>
+
         <m.div className="result-facts" variants={cascadeItem}>
           <div>
             <h2>你的被动技能</h2>
@@ -297,10 +335,17 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
         </m.div>
 
         <m.div className="result-actions" variants={cascadeItem}>
-          <button className="primary-button" type="button" onClick={onRestart}>
-            再测一次 <span aria-hidden="true">↻</span>
+          <a className="primary-button pet-download" href={persona.petArchive} download>
+            下载这只 Pet <span aria-hidden="true">↓</span>
+          </a>
+          <button className="text-button" type="button" onClick={onRestart}>
+            再测一次 ↻
           </button>
-          <span className="mock-note">8 QUESTIONS · SCORE MATRIX</span>
+        </m.div>
+
+        <m.div className="mosoo-credit mosoo-credit--result" variants={cascadeItem}>
+          <span>POWERED BY</span>
+          <img src="/mosoo-logo.svg" alt="Mosoo" />
         </m.div>
       </m.section>
     </main>

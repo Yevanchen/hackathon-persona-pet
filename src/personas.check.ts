@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { personaIds } from "./personas.ts";
+import { accessSync, closeSync, openSync, readSync } from "node:fs";
+import { personaIds, personas } from "./personas.ts";
 import {
   createEmptyPersonaTotals,
   parseQuestionnaireDocument,
@@ -12,6 +13,11 @@ import {
 } from "./questionnaire.ts";
 
 assert.equal(personaIds.length, 8);
+assert.equal(new Set(personaIds).size, 8);
+assert.deepEqual(Object.keys(personas).sort(), [...personaIds].sort());
+assert.equal(new Set(personaIds.map((id) => personas[id].artwork)).size, 8);
+assert.equal(new Set(personaIds.map((id) => personas[id].petSprite)).size, 8);
+assert.equal(new Set(personaIds.map((id) => personas[id].petArchive)).size, 8);
 assert.match(questionnaireVersion, /^\d{4}-\d{2}-\d{2}/);
 assert.deepEqual(scoreColumnPersonaIds, personaIds);
 assert.equal(questionnaire.length, 8);
@@ -31,6 +37,26 @@ for (const question of questionnaire) {
       `${question.id}/${choice.id} must score at least one persona`,
     );
   }
+}
+
+for (const id of personaIds) {
+  const persona = personas[id];
+  assert.equal(persona.id, id);
+  assert.equal(persona.stats.length, 4);
+  assert.equal(new Set(persona.stats.map(({ label }) => label)).size, 4);
+  assert.ok(persona.stats.some(({ value }) => value === 100), `${id} must have a signature stat`);
+  assert.ok(
+    persona.stats.every(({ value }) => Number.isInteger(value) && value >= 0 && value <= 100),
+  );
+  accessSync(new URL(`../public${persona.artwork}`, import.meta.url));
+  accessSync(new URL(`../public${persona.petSprite}`, import.meta.url));
+  const archive = new URL(`../public${persona.petArchive}`, import.meta.url);
+  accessSync(archive);
+  const file = openSync(archive, "r");
+  const signature = Buffer.alloc(2);
+  readSync(file, signature, 0, signature.length, 0);
+  closeSync(file);
+  assert.equal(signature.toString("ascii"), "PK", `${id} pet archive must be a ZIP file`);
 }
 
 const poopScoreIndex = scoreColumnPersonaIds.indexOf("poop");
@@ -152,4 +178,6 @@ assert.throws(
   /must give positive evidence to at least one persona/,
 );
 
-console.log("questionnaire check passed: 8 questions × n choices (n >= 2) × 8 persona scores");
+console.log(
+  "persona check passed: 8 scored personas with artwork, pet downloads, and static meme stats",
+);
