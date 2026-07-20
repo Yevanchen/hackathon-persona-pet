@@ -24,5 +24,7 @@ Production targets the `WH-2099` Cloudflare account at `https://hackathon-pet.mo
 - Everyone starts with the same question. Internal branch IDs stay hidden while the UI always shows steps 1–8.
 - The question bank is grounded in two authoring contexts: [Chinese meme translation and real Hackathon self-positioning](docs/research/persona-quiz-contexts.md).
 - Soft distribution balancing is implemented as a close-score tie-breaker, but it needs backend result counts before the frontend can use it.
-- Every result uses its corresponding supplied pixel-character artwork; the original SVG familiars remain decorative page assets.
-- Mosoo classification, stable result URLs, QR codes, storage, and production asset downloads are not implemented.
+- Every result keeps its supplied pixel-character artwork and original SVG familiars, while the result hero uses a Codex-compatible animated Pet atlas.
+- Result Pets idle by default, wave on hover, jump on click, and can be dragged or moved with arrow keys inside the preview stage.
+- Each persona has a same-origin, one-click ZIP download containing `pet.json` and `spritesheet.webp`.
+- Mosoo classification, stable result URLs, QR codes, and server-side storage are not implemented.

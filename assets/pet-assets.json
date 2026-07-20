@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-07-20",
+  "policy": {
+    "creator": "not supplied",
+    "licenseOrRemixPermission": "not supplied; publication requested by the project owner",
+    "rightsStatus": "third-party rights not independently verified",
+    "sourceCommit": null,
+    "takedownOrReplacement": "replaceable; remove the public ZIP and spritesheet on request"
+  },
+  "rendererReference": {
+    "project": "petdex",
+    "commit": "1dad63495a13264be46fd22ed7aea960fc8d1d7d"
+  },
+  "assets": [
+    {
+      "personaId": "laoda",
+      "productionMethod": "hatch-pet image generation from user-provided reference",
+      "sourceFiles": [
+        { "name": "01-kobe-laoda.png", "sha256": "17984ee6d64422c56b9caff1f5d3b326f794db5cbd16079ff2b194c32ff4e846" }
+      ],
+      "spritesheet": { "path": "public/pets/laoda/spritesheet.webp", "sha256": "afb9361cb9031640d51b0570a44e80577b4da4c1d69841c030c9b19612e92e8f" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-laoda.zip", "sha256": "032a463ba1c78c0dae6285933933f79ae5bb1dfd4142230e1cc0a9106ed7ee14" }
+    },
+    {
+      "personaId": "bigdog",
+      "productionMethod": "hatch-pet image generation from user-provided reference",
+      "sourceFiles": [
+        { "name": "03-big-dog-bark.png", "sha256": "2cffc912110f902ffcbebd826063723ce36779948f5c7bc062e4c232d36c32fd" }
+      ],
+      "spritesheet": { "path": "public/pets/bigdog/spritesheet.webp", "sha256": "e4a1d61382e22971628a1158573252958d90106e800e1ba0e9951ac34018eb53" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-bigdog.zip", "sha256": "d1e4ef57f48570b8fcac465bb655697ea87eb23b511cf54589a3c11d689b61cf" }
+    },
+    {
+      "personaId": "maodie",
+      "productionMethod": "normalized user-provided pet package",
+      "sourceFiles": [
+        { "name": "zip (3).zip", "sha256": "30a96905d12ff6334169f76ab22c0eec2b39c301b545feaeb57efcc4c3e96c87" },
+        { "name": "02-maodie.png", "sha256": "c196a6a10800346faa0bde40f250cd6ddcbcd31ca58e0ecc82e4f2e78a1999d5" }
+      ],
+      "spritesheet": { "path": "public/pets/maodie/spritesheet.webp", "sha256": "9d97a0a905bc1f419a2e553e2721daf3c89a4e69da49da6787ae89045207a1fc" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-maodie.zip", "sha256": "95ad467e0bfadcd3c1f83eded8da327dcb04f156c1b7e8207381c7fb1f6ca058" }
+    },
+    {
+      "personaId": "mowan",
+      "productionMethod": "normalized user-provided pet package",
+      "sourceFiles": [
+        { "name": "zip (4).zip", "sha256": "5d7f996094a4ec57530957262bff2b81e6695dd3f3dd6df47c8657984e43ee1e" },
+        { "name": "05-mowan.png", "sha256": "8eade27ceca3f25e01299a855e97515ab93cbf1dff91dbb9aab849303dc92921" }
+      ],
+      "spritesheet": { "path": "public/pets/mowan/spritesheet.webp", "sha256": "affdc5c24a9c361e33dd4f37bfb7a732310e3fc1a449bdd6e2d5cdf9a6068578" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-mowan.zip", "sha256": "cf216a57f2769372b315ed90e1f12d0a2906c83f2d0eb76fca20c07f254aae2a" }
+    },
+    {
+      "personaId": "gugugaga",
+      "productionMethod": "hatch-pet image generation from user-provided reference",
+      "sourceFiles": [
+        { "name": "04-gugugaga.png", "sha256": "a310346701bf84c382a32370c0da10b266c1fddea8edba8532111fc298ca8b3e" }
+      ],
+      "spritesheet": { "path": "public/pets/gugugaga/spritesheet.webp", "sha256": "f386ff8dd52c3b0b34b1806b0aa251818dbba3c6d1829891800680f8199ecc49" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-gugugaga.zip", "sha256": "1b8a93d16386489f3aeda2c5150718fd4d20d300649796b7d973017305fcb339" }
+    },
+    {
+      "personaId": "shitter",
+      "productionMethod": "hatch-pet image generation from user-provided reference",
+      "sourceFiles": [
+        { "name": "07-poop.png", "sha256": "d33aa026d71768cbd0b8e508b15e8c0069f84bb3b0ed4f54f27143c4bb12d4ee" }
+      ],
+      "spritesheet": { "path": "public/pets/shitter/spritesheet.webp", "sha256": "b857f150a611e5256c63922cb4435b2d21c8c360661f565a6b39e4b2ea4a033a" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-shitter.zip", "sha256": "d663cb5ff591c9d474d095a6d990a320886126995fc2a4d910947b466647ccd4" }
+    },
+    {
+      "personaId": "nailong",
+      "productionMethod": "normalized user-provided pet package",
+      "sourceFiles": [
+        { "name": "bellylaugh.zip", "sha256": "5bc49e515166c1764989a9305e26687328777201bf5f11feec2df82962e81ff2" },
+        { "name": "08-nailong-daxiao.png", "sha256": "b16466d81602cfad7674edc5f576b3d5c51e2c2d222486fa2b6ff5a29a26ead8" }
+      ],
+      "spritesheet": { "path": "public/pets/nailong/spritesheet.webp", "sha256": "d2cd1331895098ba33792c36d9ea6bfa64564b189622f74ef8575557a6771e0f" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-nailong.zip", "sha256": "29f73a6d6472928a7e47831d9f63e2bf6d4372ab06788c35216804b54c3c63d3" }
+    },
+    {
+      "personaId": "jiahao",
+      "productionMethod": "normalized user-provided pet package",
+      "sourceFiles": [
+        { "name": "zip (2).zip", "sha256": "ca4529e033e3eccd178a73da5ecdc77cfd93b21d676fa7c5eb6bacf1df1094f4" },
+        { "name": "06-jiahao.png", "sha256": "bebf9b7b313122b6618587e5f1a115ba2e8b8b7e0a0c9f240a38ef646e948552" }
+      ],
+      "spritesheet": { "path": "public/pets/jiahao/spritesheet.webp", "sha256": "61262f3e6adab4c1491e6f82105a4cb36fe555e381edb0ec9feaf4c9861500bf" },
+      "archive": { "path": "public/downloads/pets/hackathon-pet-jiahao.zip", "sha256": "aaf357663ede935a58835ab064c1f69c0cc9429c904f94fab8a762338fc9cfce" }
+    }
+  ]
+}

@@ -20,6 +20,8 @@ export type Persona = {
   warning: string;
   color: string;
   artwork: string;
+  petSprite: string;
+  petArchive: string;
   stats: readonly [PersonaStat, PersonaStat, PersonaStat, PersonaStat];
 };
 
@@ -35,6 +37,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "熬夜不是勋章，提前暴露风险比最后通宵更可靠。",
     color: "oklch(67% 0.18 63)",
     artwork: "/characters/01-kobe-laoda.png",
+    petSprite: "/pets/laoda/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-laoda.zip",
     stats: [
       { label: "深夜续航", value: 100 },
       { label: "手速爆发", value: 98 },
@@ -51,6 +55,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "声量不是领导力；每次开麦都要带来信息或行动。",
     color: "oklch(53% 0.17 251)",
     artwork: "/characters/03-big-dog-bark.png",
+    petSprite: "/pets/bigdog/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-bigdog.zip",
     stats: [
       { label: "开麦分贝", value: 100 },
       { label: "汇报欲望", value: 95 },
@@ -67,6 +73,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "先说证据再哈气，锋利的判断也需要让队友接得住。",
     color: "oklch(49% 0.18 286)",
     artwork: "/characters/02-maodie.png",
+    petSprite: "/pets/maodie/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-maodie.zip",
     stats: [
       { label: "哈气指数", value: 100 },
       { label: "Bug 嗅觉", value: 96 },
@@ -83,6 +91,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "实验要小步、可逆；删库关服只适合留在梗里。",
     color: "oklch(67% 0.18 121)",
     artwork: "/characters/05-mowan.png",
+    petSprite: "/pets/mowan/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-mowan.zip",
     stats: [
       { label: "搞事概率", value: 100 },
       { label: "脑洞浓度", value: 97 },
@@ -99,6 +109,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "消息量不等于交付，记得认领一个真正属于你的结果。",
     color: "oklch(57% 0.14 143)",
     artwork: "/characters/04-gugugaga.png",
+    petSprite: "/pets/gugugaga/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-gugugaga.zip",
     stats: [
       { label: "群聊浓度", value: 100 },
       { label: "已读秒回", value: 96 },
@@ -115,6 +127,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "临时补丁必须可回滚、能交接；别让队友替你收拾残局。",
     color: "oklch(70% 0.2 49)",
     artwork: "/characters/07-poop.png",
+    petSprite: "/pets/shitter/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-shitter.zip",
     stats: [
       { label: "屎山适应", value: 100 },
       { label: "补丁速度", value: 98 },
@@ -131,6 +145,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "气氛之外也要认领明确贡献，别让笑声替代交付。",
     color: "oklch(64% 0.2 18)",
     artwork: "/characters/08-nailong-daxiao.png",
+    petSprite: "/pets/nailong/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-nailong.zip",
     stats: [
       { label: "爆笑含量", value: 100 },
       { label: "捧场强度", value: 97 },
@@ -147,6 +163,8 @@ export const personas: Record<PersonaId, Persona> = {
     warning: "舞台感要为产品服务，别让姿态盖过真正的成果。",
     color: "oklch(54% 0.24 328)",
     artwork: "/characters/06-jiahao.png",
+    petSprite: "/pets/jiahao/spritesheet.webp",
+    petArchive: "/downloads/pets/hackathon-pet-jiahao.zip",
     stats: [
       { label: "登场气场", value: 100 },
       { label: "功能包装", value: 99 },

@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import { LazyMotion, MotionConfig, domAnimation, m, type Variants } from "motion/react";
 import { personaIds, personas, type Persona } from "./personas";
+import { PetVisual } from "./PetVisual";
 import {
   FREE_TEXT_PROMPT,
   START_QUESTION_ID,
@@ -299,20 +300,6 @@ function Hatching({ responseCount }: { responseCount: number }) {
   );
 }
 
-function PetVisual({ persona }: { persona: Persona }) {
-  const style = { "--pet-color": persona.color } as CSSProperties;
-  return (
-    <div className="pet-stage" style={style}>
-      <img
-        className="result-character"
-        src={persona.artwork}
-        alt={`${persona.chinese}像素角色`}
-        draggable={false}
-      />
-    </div>
-  );
-}
-
 function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId: string; onRestart: () => void }) {
   const classNumber = personaIds.indexOf(persona.id) + 1;
 
@@ -396,9 +383,10 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
         </m.div>
 
         <m.div className="result-actions" variants={cascadeItem}>
-          <button className="primary-button" type="button" onClick={onRestart}>
-            再测一次 <span aria-hidden="true">↻</span>
-          </button>
+          <a className="primary-button pet-download" href={persona.petArchive} download>
+            下载这只 Pet <span aria-hidden="true">↓</span>
+          </a>
+          <button className="text-button" type="button" onClick={onRestart}>再测一次 ↻</button>
           <span className="mock-note">八类等权 · 按答题信号匹配</span>
         </m.div>
       </m.section>

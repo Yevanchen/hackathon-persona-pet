@@ -471,6 +471,7 @@ label {
   color: var(--paper-bright);
   background: var(--ink);
   box-shadow: 5px 5px 0 var(--orange);
+  text-decoration: none;
   transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background 140ms;
 }
 
@@ -773,6 +774,7 @@ textarea:focus-visible {
   background: var(--pet-color, var(--blue));
   border: 2px solid var(--ink);
   box-shadow: 9px 9px 0 var(--ink);
+  user-select: none;
 }
 
 .pet-stage::before {
@@ -785,14 +787,57 @@ textarea:focus-visible {
   background-size: 3rem 3rem;
 }
 
-.result-character {
+.pet-stage-hint {
+  position: absolute;
+  z-index: 2;
+  top: 0.65rem;
+  left: 0.65rem;
+  padding: 0.3rem 0.45rem;
+  color: var(--paper-bright);
+  background: var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+.pet-dragger {
   position: relative;
   z-index: 1;
   display: block;
-  width: min(90%, 24rem);
-  height: auto;
-  filter: drop-shadow(0.8rem 1rem 0 oklch(22% 0.03 258 / 0.2));
+  width: 192px;
+  height: 208px;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  transform: translate3d(var(--pet-x), var(--pet-y), 0) scale(1.32);
+  transform-origin: center;
+}
+
+.pet-dragger[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.pet-dragger:focus-visible {
+  outline: 3px solid var(--paper-bright);
+  outline-offset: 5px;
+}
+
+.pet-sprite {
+  display: block;
+  width: 192px;
+  height: 208px;
+  background-image: var(--pet-image);
+  background-repeat: no-repeat;
+  background-size: 1536px 1872px;
+  background-position: 0 calc(var(--pet-row) * -208px);
+  animation: pet-frames var(--pet-duration) steps(var(--pet-frames)) infinite;
+  filter: drop-shadow(0.6rem 0.75rem 0 oklch(22% 0.03 258 / 0.2));
   image-rendering: pixelated;
+  pointer-events: none;
 }
 
 .session-ticket {
@@ -1012,6 +1057,15 @@ textarea:focus-visible {
   }
 }
 
+@keyframes pet-frames {
+  from {
+    background-position: 0 calc(var(--pet-row) * -208px);
+  }
+  to {
+    background-position: calc(var(--pet-frames) * -192px) calc(var(--pet-row) * -208px);
+  }
+}
+
 @media (min-width: 52rem) {
   .result-screen {
     grid-template-columns: minmax(20rem, 0.85fr) minmax(0, 1.15fr);
@@ -1159,14 +1213,22 @@ textarea:focus-visible {
     transform: translateX(0.2rem);
   }
 
-  .quiz-actions,
-  .result-actions {
+  .quiz-actions {
     align-items: stretch;
     flex-direction: column-reverse;
   }
 
+  .result-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .primary-button {
     width: 100%;
+  }
+
+  .pet-dragger {
+    transform: translate3d(var(--pet-x), var(--pet-y), 0) scale(1.16);
   }
 
   .result-screen {
