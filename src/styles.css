@@ -433,6 +433,24 @@ label {
   letter-spacing: 0.15em;
 }
 
+.mosoo-credit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 2.5rem;
+  color: var(--ink-muted);
+  font-family: var(--font-pixel);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+
+.mosoo-credit img {
+  display: block;
+  width: 5.75rem;
+  height: auto;
+}
+
 .intro-actions,
 .result-actions,
 .quiz-actions {

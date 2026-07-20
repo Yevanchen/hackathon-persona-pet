@@ -71,6 +71,17 @@ const questions = [
   },
 ] as const;
 
+const introRoster = [
+  { name: "牢大", tagline: "熬夜当主程" },
+  { name: "大狗叫", tagline: "为项目激情开麦" },
+  { name: "耄耋", tagline: "一言不合就哈气" },
+  { name: "魔丸", tagline: "删库关服就跑路" },
+  { name: "咕咕嘎嘎", tagline: "群聊贡献百分百" },
+  { name: "Shitter", tagline: "在码仓拉屎" },
+  { name: "奶蛙", tagline: "全程爆笑捧场" },
+  { name: "嘉豪", tagline: "重新定义小功能" },
+] as const;
+
 type Phase = "intro" | "quiz" | "hatching" | "result";
 
 // Hand-drawn geometric guild familiars (original sparkles.dev-style SVG art in
@@ -165,14 +176,14 @@ function Intro({ onStart }: { onStart: () => void }) {
 
           <div className="ticket-perf" aria-hidden="true" />
 
-          <div className="ticket-stub" aria-label="八种常规职业和一个隐藏职业">
+          <div className="ticket-stub" aria-label="八种黑客松角色和一个隐藏职业">
             <p className="ticket-stub-title">本处签发以下职业 · GUILD ROSTER</p>
             <ol className="ticket-roster">
-              {regularPersonaIds.map((id, index) => (
-                <li key={id} style={{ "--i": index } as CSSProperties}>
+              {introRoster.map(({ name, tagline }, index) => (
+                <li key={name} style={{ "--i": index } as CSSProperties}>
                   <span className="num">{String(index + 1).padStart(2, "0")}</span>
-                  <b>{personas[id].english}</b>
-                  <small>{personas[id].chinese}</small>
+                  <b>{name}</b>
+                  <small>{tagline}</small>
                 </li>
               ))}
               <li className="classified" style={{ "--i": 8 } as CSSProperties}>
@@ -183,6 +194,11 @@ function Intro({ onStart }: { onStart: () => void }) {
             </ol>
           </div>
         </section>
+
+        <div className="mosoo-credit">
+          <span>POWERED BY</span>
+          <img src="/mosoo-logo.svg" alt="Mosoo" />
+        </div>
       </div>
     </main>
   );
