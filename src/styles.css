@@ -504,8 +504,7 @@ textarea:focus-visible {
   color: var(--blue);
 }
 
-.time-note,
-.mock-note {
+.time-note {
   color: var(--ink-muted);
   font-size: 0.82rem;
   font-weight: 700;
@@ -785,20 +784,6 @@ textarea:focus-visible {
     linear-gradient(90deg, transparent 49%, oklch(98% 0.01 90 / 0.22) 50%, transparent 51%),
     linear-gradient(transparent 49%, oklch(98% 0.01 90 / 0.22) 50%, transparent 51%);
   background-size: 3rem 3rem;
-}
-
-.pet-stage-hint {
-  position: absolute;
-  z-index: 2;
-  top: 0.65rem;
-  left: 0.65rem;
-  padding: 0.3rem 0.45rem;
-  color: var(--paper-bright);
-  background: var(--ink);
-  font-family: var(--font-pixel);
-  font-size: 0.56rem;
-  letter-spacing: 0.05em;
-  pointer-events: none;
 }
 
 .pet-dragger {

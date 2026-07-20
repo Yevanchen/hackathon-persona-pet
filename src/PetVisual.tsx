@@ -132,9 +132,6 @@ export function PetVisual({ persona }: { persona: Persona }) {
 
   return (
     <div ref={stageRef} className="pet-stage" style={stageStyle}>
-      <span className="pet-stage-hint" id="pet-interaction-hint">
-        可拖动 · 悬停有反应
-      </span>
       <button
         ref={petRef}
         className="pet-dragger"
@@ -143,7 +140,6 @@ export function PetVisual({ persona }: { persona: Persona }) {
         data-state={petState}
         style={spriteStyle}
         aria-label={`${persona.chinese}动画宠物；拖动或使用方向键移动，点击可跳跃`}
-        aria-describedby="pet-interaction-hint"
         onPointerDown={startDrag}
         onPointerMove={moveDrag}
         onPointerUp={(event) => finishDrag(event)}

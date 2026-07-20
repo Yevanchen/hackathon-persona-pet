@@ -387,7 +387,6 @@ function Result({ persona, sessionId, onRestart }: { persona: Persona; sessionId
             下载这只 Pet <span aria-hidden="true">↓</span>
           </a>
           <button className="text-button" type="button" onClick={onRestart}>再测一次 ↻</button>
-          <span className="mock-note">八类等权 · 按答题信号匹配</span>
         </m.div>
       </m.section>
     </main>
