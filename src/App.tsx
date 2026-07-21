@@ -7,9 +7,11 @@ import {
   m,
   type Variants,
 } from "motion/react";
+import { QRCodeSVG } from "qrcode.react";
 import { personaIds, personas, type Persona } from "./personas.ts";
 import { PetVisual } from "./PetVisual.tsx";
 import { questionnaire as questions, scoreQuestionnaire } from "./questionnaire.ts";
+import { createResultPath, parseResultLink } from "./resultLink.ts";
 
 const introRoster = [
   { name: "牢大", tagline: "熬夜当主程" },
@@ -23,6 +25,19 @@ const introRoster = [
 ] as const;
 
 type Phase = "intro" | "quiz" | "hatching" | "result";
+
+type ResultState = {
+  persona: Persona;
+  sessionId: string;
+};
+
+const sharedResultLink = parseResultLink(window.location.search);
+const initialResult: ResultState | null = sharedResultLink
+  ? {
+      persona: personas[sharedResultLink.personaId],
+      sessionId: sharedResultLink.sessionId,
+    }
+  : null;
 
 // Hand-drawn geometric guild familiars (original sparkles.dev-style SVG art in
 // /public/familiars). Decorative stickers: static, aria-hidden, never interactive.
@@ -273,6 +288,38 @@ function Result({
   onRestart: () => void;
 }) {
   const classNumber = personaIds.indexOf(persona.id) + 1;
+  const resultUrl = new URL(
+    createResultPath({ personaId: persona.id, sessionId }),
+    window.location.origin,
+  ).toString();
+  const canShare = typeof navigator.share === "function";
+  const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+  const [shareStatus, setShareStatus] = useState("");
+
+  async function shareResult() {
+    setShareStatus("");
+
+    if (canShare) {
+      try {
+        await navigator.share({
+          title: `我的黑客松人格：${persona.chinese}`,
+          text: `我是「${persona.chinese}」——${persona.description}`,
+          url: resultUrl,
+        });
+        setShareStatus("结果已分享");
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(resultUrl);
+      setShareStatus("结果链接已复制");
+    } catch {
+      setShareStatus("请使用浏览器菜单分享当前页面");
+    }
+  }
 
   return (
     <main id="main-content" className="screen result-screen">
@@ -339,7 +386,6 @@ function Result({
               </li>
             ))}
           </ul>
-          <p>固定人设值，仅供玩梗，不代表能力排名。</p>
         </m.section>
 
         <m.div className="result-facts" variants={cascadeItem}>
@@ -357,10 +403,47 @@ function Result({
           </div>
         </m.div>
 
-        <m.div className="result-actions" variants={cascadeItem}>
-          <a className="primary-button pet-download" href={persona.petArchive} download>
-            下载这只 Pet <span aria-hidden="true">↓</span>
-          </a>
+        <m.section
+          className="result-handoff"
+          variants={cascadeItem}
+          aria-labelledby="result-handoff-title"
+        >
+          <div className="result-handoff-copy">
+            <p className="kicker">TAKE IT WITH YOU</p>
+            <h2 id="result-handoff-title">把这只 Pet 带走</h2>
+            <p className="result-handoff-intro">
+              扫码或分享链接，随时回到这只「{persona.chinese}」，不用重答。
+            </p>
+            <div className="result-actions result-handoff-actions">
+              <button className="primary-button" type="button" onClick={shareResult}>
+                {canShare ? "分享结果" : "复制结果链接"} <span aria-hidden="true">→</span>
+              </button>
+              <a className="text-button pet-download" href={persona.petArchive} download>
+                保存 Pet ZIP ↓
+              </a>
+            </div>
+            {isWeChat && (
+              <p className="download-note">
+                微信内无法保存 ZIP 时，请点右上角“在浏览器打开”。
+              </p>
+            )}
+            <p className="share-status" aria-live="polite">
+              {shareStatus}
+            </p>
+          </div>
+          <figure className="result-qr">
+            <QRCodeSVG
+              value={resultUrl}
+              size={168}
+              level="M"
+              marginSize={4}
+              title={`打开${persona.chinese}结果页`}
+            />
+            <figcaption>扫码打开同一结果</figcaption>
+          </figure>
+        </m.section>
+
+        <m.div className="result-restart" variants={cascadeItem}>
           <button className="text-button" type="button" onClick={onRestart}>
             再测一次 ↻
           </button>
@@ -376,10 +459,10 @@ function Result({
 }
 
 export default function App() {
-  const [phase, setPhase] = useState<Phase>("intro");
+  const [phase, setPhase] = useState<Phase>(initialResult ? "result" : "intro");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
-  const [result, setResult] = useState<{ persona: Persona; sessionId: string } | null>(null);
+  const [result, setResult] = useState<ResultState | null>(initialResult);
   const advanceTimer = useRef<number | null>(null);
 
   function clearAdvanceTimer() {
@@ -389,6 +472,7 @@ export default function App() {
 
   function start() {
     clearAdvanceTimer();
+    window.history.replaceState(null, "", "/");
     setPhase("quiz");
     setStep(0);
     setAnswers([]);
@@ -411,7 +495,15 @@ export default function App() {
 
       const scoringResult = scoreQuestionnaire(nextAnswers);
       const persona = personas[scoringResult.personaId];
-      setResult({ persona, sessionId: crypto.randomUUID() });
+      const sessionId = crypto.randomUUID();
+      // ponytail: Public event results live in the URL; use server persistence if
+      // tamper-proof history becomes a product requirement.
+      window.history.replaceState(
+        null,
+        "",
+        createResultPath({ personaId: persona.id, sessionId }),
+      );
+      setResult({ persona, sessionId });
       setPhase("hatching");
       window.setTimeout(() => setPhase("result"), 1100);
     }, 280);
