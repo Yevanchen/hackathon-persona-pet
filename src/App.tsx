@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   AnimatePresence,
   LazyMotion,
@@ -31,12 +31,26 @@ type ResultState = {
   sessionId: string;
 };
 
+const wait = (durationMs: number) =>
+  new Promise<void>((resolve) => window.setTimeout(resolve, durationMs));
+
+function preloadPetSprite(src: string) {
+  const image = new Image();
+  image.src = src;
+  // ponytail: Stop gating the result after five seconds; the CSS background
+  // keeps loading if venue Wi-Fi is unusually slow.
+  return Promise.race([image.decode().catch(() => undefined), wait(5000)]);
+}
+
 const sharedResultLink = parseResultLink(window.location.search);
 const initialResult: ResultState | null = sharedResultLink
   ? {
       persona: personas[sharedResultLink.personaId],
       sessionId: sharedResultLink.sessionId,
     }
+  : null;
+const initialSpriteReady = initialResult
+  ? preloadPetSprite(initialResult.persona.petSprite)
   : null;
 
 // Hand-drawn geometric guild familiars (original sparkles.dev-style SVG art in
@@ -271,9 +285,9 @@ function Hatching() {
       <div className="hatch-seal" aria-hidden="true">
         <span>?</span>
       </div>
-      <p className="kicker">MATCHING YOUR GUILD SIGNAL</p>
-      <h1>正在汇总你的人格分数…</h1>
-      <p>逐题累加八列分值，最高分就是本次结果。</p>
+      <p className="kicker">PREPARING YOUR FAMILIAR</p>
+      <h1>人格已锁定，正在召唤你的 Pet…</h1>
+      <p>马上就见面。</p>
     </main>
   );
 }
@@ -459,11 +473,22 @@ function Result({
 }
 
 export default function App() {
-  const [phase, setPhase] = useState<Phase>(initialResult ? "result" : "intro");
+  const [phase, setPhase] = useState<Phase>(initialResult ? "hatching" : "intro");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [result, setResult] = useState<ResultState | null>(initialResult);
   const advanceTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!initialSpriteReady) return;
+    let active = true;
+    void initialSpriteReady.then(() => {
+      if (active) setPhase("result");
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function clearAdvanceTimer() {
     if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
@@ -505,7 +530,9 @@ export default function App() {
       );
       setResult({ persona, sessionId });
       setPhase("hatching");
-      window.setTimeout(() => setPhase("result"), 1100);
+      void Promise.all([preloadPetSprite(persona.petSprite), wait(1100)]).then(() =>
+        setPhase("result"),
+      );
     }, 280);
   }
 

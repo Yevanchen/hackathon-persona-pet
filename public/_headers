@@ -1,0 +1,7 @@
+# ponytail: These paths are stable during the event. Move them to hashed names
+# before raising this one-day browser cache to an immutable year-long cache.
+/pets/*
+  Cache-Control: public, max-age=86400
+
+/downloads/pets/*
+  Cache-Control: public, max-age=86400
