@@ -223,7 +223,14 @@ function Quiz({
                       {String.fromCharCode(65 + index)}
                     </m.span>
                     <span>{choice.label}</span>
-                    <i aria-hidden="true">↗</i>
+                    <svg
+                      className="choice-arrow"
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M3 13 13 3M6 3h7v7" />
+                    </svg>
                   </label>
                 );
               })}
