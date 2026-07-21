@@ -936,12 +936,6 @@ label {
   border-radius: 0;
 }
 
-.persona-stats > p {
-  margin: 0.65rem 0 0;
-  color: var(--ink-muted);
-  font-size: 0.68rem;
-}
-
 .result-facts {
   display: grid;
   gap: 1.5rem;
@@ -978,6 +972,91 @@ label {
   margin: 0;
   color: var(--ink-muted);
   line-height: 1.65;
+}
+
+.result-handoff {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 2px solid var(--ink);
+  background: var(--paper-bright);
+  box-shadow: 6px 6px 0 var(--orange);
+}
+
+.result-handoff-copy {
+  min-width: 0;
+}
+
+.result-handoff h2 {
+  margin: 0.5rem 0;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  letter-spacing: -0.035em;
+}
+
+.result-handoff-intro {
+  max-width: 32rem;
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.result-handoff-actions {
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.result-handoff-actions .primary-button {
+  min-width: 10rem;
+}
+
+.result-handoff-actions .text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.result-qr {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.result-qr svg {
+  display: block;
+  width: clamp(8.75rem, 28vw, 10.5rem);
+  height: auto;
+  border: 2px solid var(--ink);
+}
+
+.result-qr figcaption {
+  color: var(--ink-muted);
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.download-note,
+.share-status {
+  margin: 0.85rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.share-status {
+  min-height: 1.1rem;
+  color: var(--blue-dark);
+}
+
+.result-restart {
+  margin-top: 1rem;
 }
 
 @keyframes screen-in {
@@ -1024,6 +1103,12 @@ label {
   /* The two-column gap absorbs the deeper corner overhang. */
   .familiar--result {
     right: -1.4rem;
+  }
+}
+
+@media (min-width: 68rem) {
+  .result-handoff {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 }
 
@@ -1175,6 +1260,10 @@ label {
   .result-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .result-handoff {
+    padding: 1rem;
   }
 
   .primary-button {

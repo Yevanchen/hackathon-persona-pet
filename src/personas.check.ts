@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { accessSync, closeSync, openSync, readSync } from "node:fs";
 import { personaIds, personas } from "./personas.ts";
+import { createResultPath, parseResultLink } from "./resultLink.ts";
 import {
   createEmptyPersonaTotals,
   parseQuestionnaireDocument,
@@ -21,6 +22,18 @@ assert.equal(new Set(personaIds.map((id) => personas[id].petArchive)).size, 8);
 assert.match(questionnaireVersion, /^\d{4}-\d{2}-\d{2}/);
 assert.deepEqual(scoreColumnPersonaIds, personaIds);
 assert.equal(questionnaire.length, 8);
+
+const resultLinkFixture = {
+  personaId: "kobe-laoda" as const,
+  sessionId: "00000000-0000-4000-8000-000000000000",
+};
+const resultLinkUrl = new URL(createResultPath(resultLinkFixture), "https://hackathon-pet.test");
+assert.deepEqual(parseResultLink(resultLinkUrl.search), resultLinkFixture);
+assert.equal(
+  parseResultLink(`?result=${resultLinkFixture.sessionId}&persona=not-a-persona`),
+  null,
+);
+assert.equal(parseResultLink("?result=not-a-uuid&persona=kobe-laoda"), null);
 
 for (const question of questionnaire) {
   assert.ok(question.choices.length >= 2, `${question.id} must have at least two choices`);
