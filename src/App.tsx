@@ -478,6 +478,7 @@ export default function App() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [result, setResult] = useState<ResultState | null>(initialResult);
   const advanceTimer = useRef<number | null>(null);
+  const musicRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (!initialSpriteReady) return;
@@ -497,6 +498,7 @@ export default function App() {
 
   function start() {
     clearAdvanceTimer();
+    void musicRef.current?.play().catch(() => undefined);
     window.history.replaceState(null, "", "/");
     setPhase("quiz");
     setStep(0);
@@ -550,6 +552,7 @@ export default function App() {
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         <div className={`app app--${phase}`}>
+          <audio ref={musicRef} src="/audio/huoran-kailang.mp3" preload="metadata" />
           <Header compact={phase !== "intro"} />
           {phase === "intro" && <Intro onStart={start} />}
           {phase === "quiz" && (
